@@ -169,6 +169,59 @@
     return [];
   }
 
+  // Un lien blob appartient au navigateur qui l'a créé, pas au catalogue.
+  function getSafeSourceUrl(value) {
+    try {
+      const url = new URL(String(value || "").trim());
+      return ["https:", "http:"].includes(url.protocol) && !url.username && !url.password
+        ? url.href
+        : "";
+    } catch (_error) {
+      return "";
+    }
+  }
+
+  function getSourceOptions(item, language) {
+    const sources = item?.sources;
+    let entries;
+
+    if (Array.isArray(sources)) {
+      entries = sources;
+    } else if (sources && typeof sources === "object") {
+      entries = Object.entries(sources).flatMap(([key, value]) =>
+        (Array.isArray(value) ? value : [value])
+          .filter(Boolean)
+          .map((entry) => ({ ...entry, language: entry.language || key }))
+      );
+    } else {
+      return item ? [{ ...item, sourceId: "default" }] : [];
+    }
+
+    return entries.filter(Boolean)
+      .filter((entry) => !language || normalizeKey(entry.language) === normalizeKey(language))
+      .map((entry, index) => ({ ...entry, sourceId: entry.sourceId || `source-${index + 1}` }));
+  }
+
+  function getPlaybackSource(item, language, sourceId = "") {
+    const options = getSourceOptions(item, language);
+    const selected = options.find((entry) => entry.sourceId === sourceId) || options[0] || {};
+
+    return {
+      ...item,
+      ...selected,
+      id: item?.id,
+      language: selected.language || language || item?.language,
+      sourceName: selected.sourceName || item?.sourceName,
+      // Ne pas hériter du lecteur d'une autre langue ou d'une source publique.
+      embedUrl: getSafeSourceUrl(selected.embedUrl),
+      videoUrl: getSafeSourceUrl(selected.videoUrl),
+      sourceUrl: getSafeSourceUrl(selected.sourceUrl || selected.embedUrl || selected.videoUrl),
+      access: selected.access || item?.access || "public",
+      loginUrl: getSafeSourceUrl(selected.loginUrl || item?.loginUrl),
+      sourceId: selected.sourceId || ""
+    };
+  }
+
   function getVideoLanguages(video) {
     const values = [
       ...(video.languages || []),
@@ -202,7 +255,7 @@
   function hasUsableMediaValue(value) {
     const text = String(value || "").trim();
 
-    return Boolean(text) && !/(?:[?&]video=|\/video\/|\/embed-|\/d\/|watch\?v=)$/.test(text);
+    return Boolean(getSafeSourceUrl(text)) && !/(?:[?&]video=|\/video\/|\/embed-|\/d\/|watch\?v=)$/.test(text);
   }
 
   function hasEmptySourceField(item) {
@@ -224,6 +277,10 @@
   function hasPlayableSource(item) {
     if (!item) {
       return false;
+    }
+
+    if (Array.isArray(item)) {
+      return item.some(hasPlayableSource);
     }
 
     if (item.type === "series") {
@@ -256,6 +313,10 @@
       return true;
     }
 
+    if (Array.isArray(item)) {
+      return !item.some((entry) => !hasMissingPlayableSource(entry));
+    }
+
     if (item.type === "series") {
       return false;
     }
@@ -265,7 +326,10 @@
     }
 
     if (Array.isArray(item.sources) && item.sources.length) {
-      return item.sources.some((source) => hasEmptySourceField(source) || !hasPlayableSource(source));
+      const languages = [...new Set(getSourceLanguages(item.sources).map(normalizeKey))];
+      return languages.length
+        ? languages.some((language) => hasMissingPlayableSource(getSourceOptions(item, language)))
+        : hasMissingPlayableSource(item.sources);
     }
 
     if (item.sources && typeof item.sources === "object") {
@@ -312,6 +376,7 @@
           <h3>${escapeHtml(video.title)}</h3>
           <div class="card-meta">
             <span class="type-pill">${escapeHtml(cardType)}</span>
+            ${["account", "premium"].includes(video.access) ? `<span class="type-pill">${video.access === "premium" ? "Premium" : "Compte requis"}</span>` : ""}
           </div>
           ${tagLimit > 0 ? renderCardTags(video, tagLimit) : ""}
         </div>
@@ -587,6 +652,9 @@
     getSeasonLabel,
     getDisplayTags,
     getVideoLanguages,
+    getSafeSourceUrl,
+    getSourceOptions,
+    getPlaybackSource,
     hasPlayableSource,
     hasMissingPlayableSource,
     isCamrip,
