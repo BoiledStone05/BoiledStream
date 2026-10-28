@@ -16,17 +16,17 @@
     <meta name="twitter:title" content="BoiledStream - Player">
     <meta name="twitter:description" content="Player vidéo BoiledStream.">
     <meta name="twitter:image" content="https://boiledstone.github.io/BoiledStream/favicon.svg">
-    <link rel="icon" href="favicon.svg?v=20260831-no-hover-effects" type="image/svg+xml">
-    <link rel="stylesheet" href="css/styles.css?v=20260831-no-hover-effects">
-    <script src="scripts/app-utils.js?v=20260831-no-hover-effects" defer></script>
+    <link rel="icon" href="favicon.svg?v=20261028-account-sources" type="image/svg+xml">
+    <link rel="stylesheet" href="css/styles.css?v=20261028-account-sources">
+    <script src="scripts/app-utils.js?v=20261028-account-sources" defer></script>
     <!-- videos.js doit être chargé avant player.js: le player lit le catalogue central. -->
-    <script src="scripts/videos.js?v=20260831-no-hover-effects" defer></script>
-    <script src="scripts/player.js?v=20260831-no-hover-effects" defer></script>
+    <script src="scripts/videos.js?v=20261028-account-sources" defer></script>
+    <script src="scripts/player.js?v=20261028-account-sources" defer></script>
   </head>
   <body>
     <header class="site-header">
       <a class="brand" href="index.html" aria-label="Accueil BoiledStream">
-        <img class="brand-mark" src="favicon.svg?v=20260831-no-hover-effects" alt="" aria-hidden="true">
+        <img class="brand-mark" src="favicon.svg?v=20261028-account-sources" alt="" aria-hidden="true">
         <span>BoiledStream</span>
       </a>
       <div class="header-actions">
@@ -41,6 +41,7 @@
       <section class="player-layout" aria-labelledby="player-title">
         <div class="player-stage">
           <a class="back-link" href="index.html#catalogue">Retour au catalogue</a>
+          <div id="source-options" class="source-options" aria-label="Sources disponibles" hidden></div>
           <div id="player-mount" class="player-mount" aria-label="Lecteur vidéo"></div>
           <div id="player-help" class="player-help"></div>
           <div id="series-panel" class="series-panel" hidden></div>
