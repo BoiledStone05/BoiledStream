@@ -58,6 +58,16 @@ compris dans le navigateur connecté. Le catalogue conserve donc la fiche
 publique et laisse chaque spectateur y sélectionner « Premium » avec son compte.
 Le lecteur Vidzy a aussi été vérifié sans signature de compte dans l'URL.
 
+Un second essai, le même jour, a utilisé un service hébergé séparément avec
+une nouvelle autorisation QR du propriétaire. Le serveur a pu connecter le compte
+et obtenir une signature, mais le lecteur FSvid signé a répondu `403 Forbidden`
+dans l’iframe de ce service. La lecture fonctionnait encore sur French Stream dans
+le même navigateur. Ce constat ne permet pas d’identifier la règle précise du
+fournisseur (origine, IP ou contexte de session). Le partage du compte à tous les
+visiteurs n’est donc pas disponible avec cette intégration ; ajouter un serveur
+ne suffit pas. Le prototype reste privé, son API de lecture est désactivée et
+aucun jeton privé n’est ajouté au catalogue.
+
 ## Pourquoi le lien blob ne convient pas
 
 Une URL `blob:` désigne une ressource en mémoire créée par une page du navigateur.
