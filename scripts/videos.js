@@ -33,7 +33,7 @@
     externalPage(item) {
       return {
         sourceName: item.sourceName || "Page externe",
-        sourceUrl: item.sourceUrl
+        ...(item.sourceUrl ? { sourceUrl: item.sourceUrl } : {})
       };
     },
     externalpage(item) {
