@@ -295,6 +295,7 @@
     }
 
     if (
+      getSafeSourceUrl(item.embedUrl) ||
       hasUsableMediaValue(item.embedUrl) ||
       hasUsableMediaValue(item.videoUrl) ||
       hasUsableMediaValue(item.sourceUrl)

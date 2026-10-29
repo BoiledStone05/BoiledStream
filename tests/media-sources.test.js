@@ -104,5 +104,6 @@ test("les anciens films et épisodes conservent leurs sources valides", () => {
   assert.equal(utils.getSourceOptions(nobody, "FR").length, 1);
   assert.equal(utils.getPlaybackSource(nobody, "FR").access, "public");
   assert.equal(utils.getPlaybackSource(nobody, "FR").embedUrl, "https://vidzy.lol/embed-nesqwbdro8kt.html");
+  assert.equal(utils.hasMissingPlayableSource(nobody), false);
   assert.equal(catalogue.find((item) => item.id === "nobody-2").sourceName, "Universal Pictures");
 });
