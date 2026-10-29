@@ -925,7 +925,7 @@
             <button class="episode-button${isActive ? " active" : ""}${isWatched ? " watched" : ""}${missingSourceClass}" type="button" data-episode="${entry.number}" aria-pressed="${isActive}" aria-label="Épisode ${entry.number}${isWatched ? ", vu" : ""}">
               <span>Ep ${entry.number}</span>
             </button>
-            <button class="episode-watched-toggle${isWatched ? " is-watched" : ""}" type="button" data-toggle-watched="${entry.number}" aria-pressed="${isWatched}" aria-label="${isWatched ? "Marquer comme non vu" : "Marquer comme vu"}, épisode ${entry.number}">${isWatched ? "✓ Vu" : "Marquer vu"}</button>
+            <input class="episode-watched-checkbox" type="checkbox" data-toggle-watched="${entry.number}"${isWatched ? " checked" : ""} aria-label="Épisode ${entry.number} vu">
           </div>
         `;
       })
@@ -1037,7 +1037,7 @@
     });
 
     seriesPanel.querySelectorAll("[data-toggle-watched]").forEach((button) => {
-      button.addEventListener("click", () => {
+      button.addEventListener("change", () => {
         const episodeNumber = Number(button.dataset.toggleWatched);
         const entry = season.episodes?.find((candidate) => candidate.number === episodeNumber);
         if (!entry) {
@@ -1045,14 +1045,19 @@
         }
         const state = readProgressState();
         const progressId = episodeProgressId(item, season, entry);
-        if (state.watched[progressId]) {
+        const isWatched = button.checked;
+        if (!isWatched) {
           delete state.watched[progressId];
         } else {
           state.watched[progressId] = true;
           delete state.positions[`episode:${progressId}`];
         }
         writeProgressState(state);
-        renderSeriesPanel(item);
+        const episodePill = button.closest(".episode-item")?.querySelector(".episode-button");
+        episodePill?.classList.toggle("watched", isWatched);
+        if (episodePill) {
+          episodePill.setAttribute("aria-label", `Épisode ${episodeNumber}${isWatched ? ", vu" : ""}`);
+        }
       });
     });
 
