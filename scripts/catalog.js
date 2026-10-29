@@ -197,7 +197,23 @@
       return;
     }
 
-    const featuredCount = Math.min(8, Math.max(6, posterSource.length));
+    const viewportWidth = window.innerWidth;
+    const posterWidth = viewportWidth <= 620
+      ? 84
+      : viewportWidth <= 1100
+        ? 126
+        : Math.min(158, Math.max(118, viewportWidth * 0.08));
+    const posterGap = viewportWidth <= 620
+      ? 10
+      : Math.min(26, Math.max(18, viewportWidth * 0.014));
+    const railWidth = Math.max(
+      heroPosterRail.clientWidth,
+      viewportWidth > 1100 ? viewportWidth : viewportWidth <= 620 ? 760 : 720
+    );
+    const columnsToFill = Math.ceil(
+      (railWidth + posterWidth) / (posterWidth + posterGap)
+    );
+    const featuredCount = Math.max(6, columnsToFill * 2);
     const featuredItems = Array.from(
       { length: featuredCount - (featuredCount % 2) },
       (_item, index) => posterSource[index % posterSource.length]
@@ -288,5 +304,10 @@
     seriesCount.textContent = String(seriesItems.length);
   }
   renderHeroPosterRail();
+  let heroPosterResizeTimer;
+  window.addEventListener("resize", () => {
+    window.clearTimeout(heroPosterResizeTimer);
+    heroPosterResizeTimer = window.setTimeout(renderHeroPosterRail, 120);
+  }, { passive: true });
   renderVideos();
 })();
