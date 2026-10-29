@@ -201,16 +201,22 @@
       { length: Math.min(8, Math.max(6, posterSource.length)) },
       (_item, index) => posterSource[index % posterSource.length]
     );
-    const posterItems = [...featuredItems, ...featuredItems];
-
     heroPosterRail.innerHTML = `
         <div class="hero-poster-track">
-          ${posterItems
+          ${[0, 1]
       .map(
-        (video, index) => `
-          <div class="hero-poster" style="--poster-index: ${index};">
-            <div class="generated-poster" aria-hidden="true"></div>
-            ${renderPosterImage(video.posterUrl, index < 2 ? "eager" : "lazy")}
+        () => `
+          <div class="hero-poster-set">
+            ${featuredItems
+              .map(
+                (video, index) => `
+            <div class="hero-poster" style="--poster-index: ${index};">
+              <div class="generated-poster" aria-hidden="true"></div>
+              ${renderPosterImage(video.posterUrl, index < 2 ? "eager" : "lazy")}
+            </div>
+          `
+              )
+              .join("")}
           </div>
         `
       )

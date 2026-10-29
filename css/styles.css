@@ -512,17 +512,23 @@ h3 {
 }
 
 .hero-poster-track {
+  display: flex;
+  width: max-content;
+  min-height: 100%;
+  padding: 34px 0;
+  animation: hero-poster-drift 120s linear infinite;
+  will-change: transform;
+}
+
+.hero-poster-set {
+  flex: 0 0 auto;
   display: grid;
   grid-auto-columns: clamp(118px, 8vw, 158px);
   grid-auto-flow: column;
   grid-template-rows: repeat(2, clamp(176px, 22vh, 236px));
   align-content: center;
   gap: clamp(18px, 1.4vw, 26px);
-  min-height: 100%;
-  width: max-content;
-  padding: 34px 0;
-  animation: hero-poster-drift 120s linear infinite;
-  will-change: transform;
+  padding-right: clamp(18px, 1.4vw, 26px);
 }
 
 .hero-poster {
@@ -2949,6 +2955,10 @@ h3 {
   }
 
   .hero-poster-track {
+    animation-duration: 120s;
+  }
+
+  .hero-poster-set {
     grid-auto-columns: 126px;
   }
 }
@@ -3036,11 +3046,15 @@ h3 {
   }
 
   .hero-poster-track {
+    animation: hero-poster-drift 58s linear infinite;
+    will-change: transform;
+  }
+
+  .hero-poster-set {
     grid-auto-columns: 84px;
     grid-template-rows: repeat(2, 126px);
     gap: 10px;
-    animation: hero-poster-drift 58s linear infinite;
-    will-change: transform;
+    padding-right: 10px;
   }
 
   .hero-poster {
