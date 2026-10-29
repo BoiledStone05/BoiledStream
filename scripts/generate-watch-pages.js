@@ -5,7 +5,7 @@ const vm = require("vm");
 const ROOT = path.resolve(__dirname, "..");
 const SITE_URL = "https://boiledstone.github.io/BoiledStream";
 const WATCH_DIR = path.join(ROOT, "watch");
-const ASSET_VERSION = "20261028-local-browser-progress";
+const ASSET_VERSION = "20261028-vidzy-resume";
 
 function escapeHtml(value) {
   return String(value ?? "")

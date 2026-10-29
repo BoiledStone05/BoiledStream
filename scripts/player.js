@@ -73,6 +73,7 @@
   let lastFocusedElement = null;
   const progressStorageKey = "boiledstream.progress.v1";
   let flushPlaybackProgress = () => {};
+  let activeVidzyProgress = null;
 
   function readProgressState() {
     try {
@@ -119,6 +120,7 @@
     if (!videoElement) {
       return;
     }
+    activeVidzyProgress = null;
 
     const progressId = mediaProgressId(item, season, episode);
     const restoreSavedPosition = () => {
@@ -131,7 +133,7 @@
       if (
         savedTime > 5 &&
         videoElement.currentTime < 5 &&
-        (!Number.isFinite(videoElement.duration) || savedTime < videoElement.duration - 10)
+        (!Number.isFinite(videoElement.duration) || savedTime < videoElement.duration - 1)
       ) {
         videoElement.currentTime = savedTime;
       }
@@ -179,6 +181,130 @@
     videoElement.addEventListener("ended", () => savePosition(true));
     window.addEventListener("pagehide", () => savePosition(true), { once: true });
   }
+
+  function attachVidzyProgressTracking(iframe, item, season = null, episode = null, embedUrl = "") {
+    if (!iframe) {
+      return;
+    }
+    let origin;
+    try {
+      const url = new URL(embedUrl, window.location.href);
+      if (!/^vidzy\.(org|lol|live|cc)$/i.test(url.hostname)) {
+        return;
+      }
+      origin = url.origin;
+    } catch (_error) {
+      return;
+    }
+
+    const progressId = mediaProgressId(item, season, episode);
+    const state = readProgressState();
+    const savedTime = Number(state.positions[progressId]?.time) || 0;
+    activeVidzyProgress = {
+      iframe,
+      origin,
+      item,
+      season,
+      episode,
+      progressId,
+      savedTime,
+      duration: Number(state.positions[progressId]?.duration) || 0,
+      currentTime: 0,
+      lastSavedAt: 0,
+      resumeSent: false
+    };
+    flushPlaybackProgress = () => saveVidzyProgress(true);
+
+    if (playerHelp) {
+      playerHelp.innerHTML = savedTime > 5
+        ? `<p class="playback-resume-note">Reprise à ${formatPlaybackTime(savedTime)}</p>`
+        : "";
+    }
+  }
+
+  function sendVidzyResume(progress) {
+    if (!progress || progress.resumeSent || progress.savedTime <= 5) {
+      return;
+    }
+    try {
+      progress.iframe.contentWindow.postMessage(
+        { action: "seek", value: progress.savedTime },
+        progress.origin
+      );
+      progress.resumeSent = true;
+    } catch (_error) {
+      // A later ready or time update can retry after the embedded player loads.
+    }
+  }
+
+  function saveVidzyProgress(force = false) {
+    const progress = activeVidzyProgress;
+    if (!progress || progress.currentTime <= 5) {
+      return;
+    }
+    const now = Date.now();
+    if (!force && now - progress.lastSavedAt < 5000) {
+      return;
+    }
+    progress.lastSavedAt = now;
+    const state = readProgressState();
+    let episodeCompleted = false;
+    if (progress.duration > 0 && progress.currentTime >= progress.duration - 5) {
+      delete state.positions[progress.progressId];
+      if (progress.season && progress.episode) {
+        state.watched[episodeProgressId(progress.item, progress.season, progress.episode)] = true;
+        episodeCompleted = true;
+      }
+    } else {
+      state.positions[progress.progressId] = {
+        time: progress.currentTime,
+        duration: progress.duration,
+        updatedAt: now
+      };
+    }
+    writeProgressState(state);
+    if (episodeCompleted) {
+      renderSeriesPanel(progress.item);
+    }
+  }
+
+  window.addEventListener("message", (event) => {
+    const progress = activeVidzyProgress;
+    if (!progress || event.source !== progress.iframe.contentWindow || event.origin !== progress.origin) {
+      return;
+    }
+    let data = event.data;
+    if (typeof data === "string") {
+      try {
+        data = JSON.parse(data);
+      } catch (_error) {
+        return;
+      }
+    }
+    if (!data || typeof data !== "object") {
+      return;
+    }
+
+    const action = data.action || data.event || data.type;
+    if (["videoLoaded", "loadedmetadata"].includes(action)) {
+      progress.duration = Number(data.duration) || progress.duration;
+      sendVidzyResume(progress);
+      return;
+    }
+    if (["timeupdate", "currentTime"].includes(action)) {
+      progress.currentTime = Number(data.currentTime ?? data.time) || 0;
+      progress.duration = Number(data.duration) || progress.duration;
+      sendVidzyResume(progress);
+      saveVidzyProgress();
+      return;
+    }
+    if (["videoEnded", "complete", "ended"].includes(action)) {
+      progress.currentTime = progress.duration || progress.currentTime;
+      saveVidzyProgress(true);
+    }
+  });
+
+  window.addEventListener("pagehide", () => flushPlaybackProgress());
 
   function normalizeHexColor(value) {
     const color = String(value || "").trim();
@@ -1040,6 +1166,8 @@
 
   function renderEpisodePlayback(item, season, episode, language) {
     flushPlaybackProgress();
+    activeVidzyProgress = null;
+    flushPlaybackProgress = () => {};
     showPlayerMount();
 
     const playback = getEpisodePlaybackSource(episode, language);
@@ -1077,6 +1205,13 @@
         if (playerHelp) {
           playerHelp.innerHTML = "";
         }
+        attachVidzyProgressTracking(
+          playerMount.querySelector("iframe"),
+          item,
+          season,
+          episode,
+          playback.embedUrl
+        );
       }
       renderSeriesPanel(item);
       return true;
@@ -1260,6 +1395,9 @@
       return;
     }
 
+    flushPlaybackProgress();
+    activeVidzyProgress = null;
+    flushPlaybackProgress = () => {};
     showPlayerMount();
     const movieState = getMovieState(item);
     const hasMovieSources = hasAnySource(item);
@@ -1339,6 +1477,13 @@
       if (playerHelp) {
         playerHelp.innerHTML = "";
       }
+      attachVidzyProgressTracking(
+        playerMount.querySelector("iframe"),
+        item,
+        null,
+        null,
+        playbackItem.embedUrl
+      );
       return;
     }
 
