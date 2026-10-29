@@ -71,6 +71,125 @@
   const nextVideo = allVideos[(currentIndex + 1) % allVideos.length];
   let posterLightbox = null;
   let lastFocusedElement = null;
+  const progressStoragePrefix = "boiledstream.progress.v1:";
+  let activeProgressUserId = readActiveProgressUserId();
+  let flushPlaybackProgress = () => {};
+  let activePlaybackContext = null;
+
+  function readActiveProgressUserId() {
+    try {
+      return localStorage.getItem("boiledstream.currentUserId") || "guest";
+    } catch (_error) {
+      return "guest";
+    }
+  }
+
+  function readProgressState() {
+    try {
+      const value = JSON.parse(localStorage.getItem(`${progressStoragePrefix}${activeProgressUserId}`) || "{}");
+      return {
+        watched: value.watched && typeof value.watched === "object" ? value.watched : {},
+        positions: value.positions && typeof value.positions === "object" ? value.positions : {}
+      };
+    } catch (_error) {
+      return { watched: {}, positions: {} };
+    }
+  }
+
+  function writeProgressState(state) {
+    try {
+      localStorage.setItem(`${progressStoragePrefix}${activeProgressUserId}`, JSON.stringify(state));
+      return true;
+    } catch (_error) {
+      return false;
+    }
+  }
+
+  function episodeProgressId(item, season, episode) {
+    return `${item.id}:s${season.number}:e${episode.number}`;
+  }
+
+  function mediaProgressId(item, season, episode) {
+    return season && episode
+      ? `episode:${episodeProgressId(item, season, episode)}`
+      : `movie:${item.id}`;
+  }
+
+  function formatPlaybackTime(seconds) {
+    const time = Math.max(0, Math.floor(Number(seconds) || 0));
+    const hours = Math.floor(time / 3600);
+    const minutes = Math.floor((time % 3600) / 60);
+    const remainingSeconds = time % 60;
+    return hours
+      ? `${hours}:${String(minutes).padStart(2, "0")}:${String(remainingSeconds).padStart(2, "0")}`
+      : `${minutes}:${String(remainingSeconds).padStart(2, "0")}`;
+  }
+
+  function attachProgressTracking(videoElement, item, season = null, episode = null) {
+    if (!videoElement) {
+      return;
+    }
+
+    const progressId = mediaProgressId(item, season, episode);
+    const restoreSavedPosition = () => {
+      const savedTime = Number(readProgressState().positions[progressId]?.time) || 0;
+      if (playerHelp) {
+        playerHelp.innerHTML = savedTime > 5
+          ? `<p class="playback-resume-note">Reprise à ${formatPlaybackTime(savedTime)}</p>`
+          : "";
+      }
+      if (
+        savedTime > 5 &&
+        videoElement.currentTime < 5 &&
+        (!Number.isFinite(videoElement.duration) || savedTime < videoElement.duration - 10)
+      ) {
+        videoElement.currentTime = savedTime;
+      }
+    };
+    activePlaybackContext = { restoreSavedPosition };
+    videoElement.addEventListener("loadedmetadata", restoreSavedPosition, { once: true });
+    if (videoElement.readyState >= 1) {
+      restoreSavedPosition();
+    }
+
+    let lastSavedAt = 0;
+    const savePosition = (force = false) => {
+      const now = Date.now();
+      if (!force && now - lastSavedAt < 5000) {
+        return;
+      }
+      lastSavedAt = now;
+
+      const state = readProgressState();
+      const currentTime = Number(videoElement.currentTime) || 0;
+      const videoDuration = Number(videoElement.duration) || 0;
+      let episodeCompleted = false;
+      if (videoDuration > 0 && currentTime >= videoDuration - 5) {
+        delete state.positions[progressId];
+        if (season && episode) {
+          state.watched[episodeProgressId(item, season, episode)] = true;
+          episodeCompleted = true;
+        }
+      } else if (currentTime > 5) {
+        state.positions[progressId] = {
+          time: currentTime,
+          duration: videoDuration,
+          updatedAt: now
+        };
+      }
+      writeProgressState(state);
+      if (episodeCompleted) {
+        renderSeriesPanel(item);
+      }
+    };
+
+    flushPlaybackProgress = () => savePosition(true);
+
+    videoElement.addEventListener("timeupdate", () => savePosition());
+    videoElement.addEventListener("pause", () => savePosition(true));
+    videoElement.addEventListener("ended", () => savePosition(true));
+    window.addEventListener("pagehide", () => savePosition(true), { once: true });
+  }
 
   function normalizeHexColor(value) {
     const color = String(value || "").trim();
@@ -678,9 +797,11 @@
       .filter(Boolean)
       .map((entry) => `<span>${escapeHtml(entry)}</span>`)
       .join("");
+    const watchedEpisodes = readProgressState().watched;
     const episodeButtons = (season.episodes || [])
       .map((entry) => {
         const isActive = hasEpisodeSelection && entry.number === episode.number;
+        const isWatched = Boolean(watchedEpisodes[episodeProgressId(item, season, entry)]);
         const entryPlayback = getEpisodePlaybackSource(entry, language);
         const hasEpisodeSource = hasPlayableSource({
           ...entry,
@@ -689,9 +810,12 @@
         });
         const missingSourceClass = hasEpisodeSource ? "" : " missing-source";
         return `
-          <button class="episode-button${isActive ? " active" : ""}${missingSourceClass}" type="button" data-episode="${entry.number}" aria-pressed="${isActive}">
-            <span>Ep ${entry.number}</span>
-          </button>
+          <div class="episode-item">
+            <button class="episode-button${isActive ? " active" : ""}${isWatched ? " watched" : ""}${missingSourceClass}" type="button" data-episode="${entry.number}" aria-pressed="${isActive}" aria-label="Épisode ${entry.number}${isWatched ? ", vu" : ""}">
+              <span>Ep ${entry.number}</span>
+            </button>
+            <button class="episode-watched-toggle${isWatched ? " is-watched" : ""}" type="button" data-toggle-watched="${entry.number}" aria-pressed="${isWatched}" aria-label="${isWatched ? "Marquer comme non vu" : "Marquer comme vu"}, épisode ${entry.number}">${isWatched ? "✓ Vu" : "Marquer vu"}</button>
+          </div>
         `;
       })
       .join("");
@@ -801,6 +925,26 @@
       });
     });
 
+    seriesPanel.querySelectorAll("[data-toggle-watched]").forEach((button) => {
+      button.addEventListener("click", () => {
+        const episodeNumber = Number(button.dataset.toggleWatched);
+        const entry = season.episodes?.find((candidate) => candidate.number === episodeNumber);
+        if (!entry) {
+          return;
+        }
+        const state = readProgressState();
+        const progressId = episodeProgressId(item, season, entry);
+        if (state.watched[progressId]) {
+          delete state.watched[progressId];
+        } else {
+          state.watched[progressId] = true;
+          delete state.positions[`episode:${progressId}`];
+        }
+        writeProgressState(state);
+        renderSeriesPanel(item);
+      });
+    });
+
     seriesPanel.querySelectorAll("[data-language]").forEach((button) => {
       button.addEventListener("click", () => {
         const nextLanguage = button.dataset.language || language;
@@ -906,6 +1050,7 @@
   }
 
   function renderEpisodePlayback(item, season, episode, language) {
+    flushPlaybackProgress();
     showPlayerMount();
 
     const playback = getEpisodePlaybackSource(episode, language);
@@ -959,6 +1104,7 @@
       if (playerHelp) {
         playerHelp.innerHTML = "";
       }
+      attachProgressTracking(playerMount.querySelector("video"), item, season, episode);
       renderSeriesPanel(item);
       return true;
     }
@@ -1219,6 +1365,7 @@
       if (playerHelp) {
         playerHelp.innerHTML = "";
       }
+      attachProgressTracking(playerMount.querySelector("video"), item);
       return;
     }
 
@@ -1592,6 +1739,26 @@
   renderMetadata(video);
   renderNavigation();
   renderRelated();
+
+  function refreshProgressForActiveUser(userId) {
+    flushPlaybackProgress();
+    activeProgressUserId = userId || "guest";
+    activePlaybackContext?.restoreSavedPosition();
+    if (video.type === "series") {
+      renderSeriesPanel(video);
+    }
+  }
+
+  window.addEventListener("boiledstream:authchange", (event) => {
+    refreshProgressForActiveUser(event.detail?.userId);
+  });
+  window.addEventListener("storage", (event) => {
+    if (event.key === "boiledstream.currentUserId") {
+      refreshProgressForActiveUser(event.newValue);
+    } else if (event.key?.startsWith(`${progressStoragePrefix}${activeProgressUserId}`) && video.type === "series") {
+      renderSeriesPanel(video);
+    }
+  });
 
   playerPoster?.addEventListener("click", () => {
     openPosterLightbox(playerPoster.dataset.posterSrc, video.title);

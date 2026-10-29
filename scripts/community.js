@@ -15,6 +15,20 @@
   let currentProfile = null;
   let authMode = "signin";
   let lastFocusedElement = null;
+
+  function publishCurrentUser(session) {
+    const userId = session?.user?.id || "";
+    try {
+      if (userId) {
+        localStorage.setItem("boiledstream.currentUserId", userId);
+      } else {
+        localStorage.removeItem("boiledstream.currentUserId");
+      }
+    } catch (_error) {
+      // Progress tracking falls back to the guest profile if storage is unavailable.
+    }
+    window.dispatchEvent(new CustomEvent("boiledstream:authchange", { detail: { userId } }));
+  }
   let hasAvatarColumn = true;
   let profileLoadPromise = null;
   let profileLoadUserId = null;
@@ -1138,12 +1152,14 @@
     await loadAdminUsers();
     const { data } = await supabaseClient.auth.getSession();
     currentSession = data.session;
+    publishCurrentUser(currentSession);
     if (currentSession) {
       await loadProfile(currentSession.user);
     }
 
     supabaseClient.auth.onAuthStateChange(async (_event, session) => {
       currentSession = session;
+      publishCurrentUser(currentSession);
       if (currentSession) {
         await loadProfile(currentSession.user);
       } else {

@@ -2133,6 +2133,51 @@ h3 {
   padding: 0;
 }
 
+.episode-item {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 6px;
+}
+
+.episode-watched-toggle {
+  min-height: 38px;
+  padding: 0 9px;
+  color: var(--muted);
+  background: #0b0f16;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.76rem;
+  font-weight: 800;
+}
+
+.episode-button.watched,
+.episode-button.watched.active,
+.episode-button.watched:hover,
+.episode-button.watched:focus-visible,
+.episode-button.watched.active:hover {
+  color: #fff;
+  background: #8050a6;
+  border-color: #a77ac5;
+}
+
+.episode-watched-toggle:hover,
+.episode-watched-toggle:focus-visible,
+.episode-watched-toggle.is-watched {
+  color: #fff;
+  background: #684083;
+  border-color: #a77ac5;
+  outline: 0;
+}
+
+.playback-resume-note {
+  margin: 8px 0 0;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
 .language-button.missing-source,
 .episode-button.missing-source {
   color: rgba(255, 255, 255, 0.9);
