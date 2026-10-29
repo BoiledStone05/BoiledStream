@@ -71,22 +71,12 @@
   const nextVideo = allVideos[(currentIndex + 1) % allVideos.length];
   let posterLightbox = null;
   let lastFocusedElement = null;
-  const progressStoragePrefix = "boiledstream.progress.v1:";
-  let activeProgressUserId = readActiveProgressUserId();
+  const progressStorageKey = "boiledstream.progress.v1";
   let flushPlaybackProgress = () => {};
-  let activePlaybackContext = null;
-
-  function readActiveProgressUserId() {
-    try {
-      return localStorage.getItem("boiledstream.currentUserId") || "guest";
-    } catch (_error) {
-      return "guest";
-    }
-  }
 
   function readProgressState() {
     try {
-      const value = JSON.parse(localStorage.getItem(`${progressStoragePrefix}${activeProgressUserId}`) || "{}");
+      const value = JSON.parse(localStorage.getItem(progressStorageKey) || "{}");
       return {
         watched: value.watched && typeof value.watched === "object" ? value.watched : {},
         positions: value.positions && typeof value.positions === "object" ? value.positions : {}
@@ -98,7 +88,7 @@
 
   function writeProgressState(state) {
     try {
-      localStorage.setItem(`${progressStoragePrefix}${activeProgressUserId}`, JSON.stringify(state));
+      localStorage.setItem(progressStorageKey, JSON.stringify(state));
       return true;
     } catch (_error) {
       return false;
@@ -146,7 +136,6 @@
         videoElement.currentTime = savedTime;
       }
     };
-    activePlaybackContext = { restoreSavedPosition };
     videoElement.addEventListener("loadedmetadata", restoreSavedPosition, { once: true });
     if (videoElement.readyState >= 1) {
       restoreSavedPosition();
@@ -1740,22 +1729,8 @@
   renderNavigation();
   renderRelated();
 
-  function refreshProgressForActiveUser(userId) {
-    flushPlaybackProgress();
-    activeProgressUserId = userId || "guest";
-    activePlaybackContext?.restoreSavedPosition();
-    if (video.type === "series") {
-      renderSeriesPanel(video);
-    }
-  }
-
-  window.addEventListener("boiledstream:authchange", (event) => {
-    refreshProgressForActiveUser(event.detail?.userId);
-  });
   window.addEventListener("storage", (event) => {
-    if (event.key === "boiledstream.currentUserId") {
-      refreshProgressForActiveUser(event.newValue);
-    } else if (event.key?.startsWith(`${progressStoragePrefix}${activeProgressUserId}`) && video.type === "series") {
+    if (event.key === progressStorageKey && video.type === "series") {
       renderSeriesPanel(video);
     }
   });
