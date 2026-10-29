@@ -512,23 +512,18 @@ h3 {
 }
 
 .hero-poster-track {
-  display: flex;
-  width: max-content;
-  min-height: 100%;
-  padding: 34px 0;
-  animation: hero-poster-drift 120s linear infinite;
-  will-change: transform;
-}
-
-.hero-poster-set {
-  flex: 0 0 auto;
+  --hero-poster-gap: clamp(18px, 1.4vw, 26px);
   display: grid;
   grid-auto-columns: clamp(118px, 8vw, 158px);
   grid-auto-flow: column;
   grid-template-rows: repeat(2, clamp(176px, 22vh, 236px));
   align-content: center;
-  gap: clamp(18px, 1.4vw, 26px);
-  padding-right: clamp(18px, 1.4vw, 26px);
+  gap: var(--hero-poster-gap);
+  min-height: 100%;
+  width: max-content;
+  padding: 34px 0;
+  animation: hero-poster-drift 120s linear infinite;
+  will-change: transform;
 }
 
 .hero-poster {
@@ -537,27 +532,12 @@ h3 {
   min-height: 0;
   overflow: hidden;
   background: #0c0f14;
-  border: 1px solid rgba(243, 241, 237, 0.11);
-  border-radius: var(--poster-radius);
+  border: 0;
+  border-radius: 0;
   contain: layout paint;
-  box-shadow:
-    0 20px 42px rgba(0, 0, 0, 0.42),
-    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  box-shadow: none;
   filter: saturate(0.62) brightness(0.58);
   opacity: 0.68;
-  transform: translateY(calc((var(--poster-index) % 4) * 10px));
-}
-
-.hero-poster:nth-child(2n) {
-  transform: translateY(calc((var(--poster-index) % 4) * 10px - 18px));
-}
-
-.hero-poster:nth-child(3n) {
-  opacity: 0.36;
-}
-
-.hero-poster:nth-child(4n) {
-  transform: translateY(calc((var(--poster-index) % 4) * 10px + 12px));
 }
 
 .hero-poster img,
@@ -584,7 +564,7 @@ h3 {
   }
 
   to {
-    transform: translate3d(-50%, 0, 0);
+    transform: translate3d(calc(-50% - var(--hero-poster-gap) / 2), 0, 0);
   }
 }
 
@@ -782,7 +762,6 @@ h3 {
   justify-content: center;
   max-width: 1320px;
   margin: 0 auto;
-  perspective: 1000px;
 }
 
 
@@ -1035,7 +1014,7 @@ h3 {
     linear-gradient(135deg, rgba(var(--accent-rgb), 0.14), rgba(78, 183, 166, 0.12)),
     #0f0f0f;
   border-radius: inherit;
-  transform: translateZ(10px);
+  transform: none;
 }
 
 .thumb::before {
@@ -1290,7 +1269,7 @@ h3 {
   padding: 96px 12px 12px;
   min-width: 0;
   background: linear-gradient(180deg, transparent, rgba(4, 5, 7, 0.74) 34%, rgba(4, 5, 7, 0.96) 100%);
-  transform: translateZ(18px);
+  transform: none;
 }
 
 .card-body h3 {
@@ -2300,14 +2279,12 @@ h3 {
   --lightbox-aspect: 0.6667;
   --lightbox-x: 50%;
   --lightbox-y: 38%;
-  --lightbox-tilt-x: 0deg;
-  --lightbox-tilt-y: 0deg;
   position: relative;
   display: grid;
   width: fit-content;
   max-width: min(86vw, 760px);
   max-height: min(84vh, 820px);
-  perspective: 1200px;
+  perspective: none;
   place-items: center;
 }
 
@@ -2334,10 +2311,7 @@ h3 {
   content: "";
   opacity: 0.36;
   pointer-events: none;
-  transform:
-    rotateX(var(--lightbox-tilt-x))
-    rotateY(var(--lightbox-tilt-y))
-    translateZ(28px);
+  transform: none;
   transition: opacity 180ms ease;
 }
 
@@ -2352,12 +2326,9 @@ h3 {
   box-shadow:
     0 40px 100px rgba(0, 0, 0, 0.66),
     0 0 0 1px rgba(255, 255, 255, 0.08) inset;
-  transform:
-    rotateX(var(--lightbox-tilt-x))
-    rotateY(var(--lightbox-tilt-y))
-    translateZ(0);
-  transform-style: preserve-3d;
-  transition: transform 120ms ease;
+  transform: none;
+  transform-style: flat;
+  transition: none;
 }
 
 .poster-lightbox-close {
@@ -2958,7 +2929,7 @@ h3 {
     animation-duration: 120s;
   }
 
-  .hero-poster-set {
+  .hero-poster-track {
     grid-auto-columns: 126px;
   }
 }
@@ -3042,31 +3013,19 @@ h3 {
     width: 760px;
     height: 290px;
     opacity: 0.32;
-    transform: rotate(-6deg);
   }
 
   .hero-poster-track {
+    --hero-poster-gap: 10px;
+    grid-auto-columns: 84px;
+    grid-template-rows: repeat(2, 126px);
+    gap: var(--hero-poster-gap);
     animation: hero-poster-drift 58s linear infinite;
     will-change: transform;
   }
 
-  .hero-poster-set {
-    grid-auto-columns: 84px;
-    grid-template-rows: repeat(2, 126px);
-    gap: 10px;
-    padding-right: 10px;
-  }
-
   .hero-poster {
     min-height: 0;
-  }
-
-  .hero-poster:nth-child(2n) {
-    transform: translateY(-18px);
-  }
-
-  .hero-poster:nth-child(3n) {
-    transform: translateY(18px);
   }
 
   .section-heading {
