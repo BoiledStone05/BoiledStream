@@ -886,7 +886,6 @@ h3 {
   -webkit-backdrop-filter: none;
 }
 
-.hero-poster-track,
 .video-grid::before {
   animation: none;
   will-change: auto;
@@ -900,6 +899,23 @@ h3 {
 
 .video-card::after {
   display: none;
+}
+
+/* Animations GPU-friendly : uniquement transform, jamais background-position. */
+@media (min-width: 721px) and (prefers-reduced-motion: no-preference) {
+  .hero-poster-track {
+    animation: hero-poster-drift 120s linear infinite;
+    will-change: transform;
+  }
+
+  .video-card {
+    transition: transform 160ms ease;
+  }
+
+  .video-card:hover,
+  .video-card:focus-visible {
+    transform: scale(1.012);
+  }
 }
 
 .video-card::before {
