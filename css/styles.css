@@ -108,6 +108,11 @@ iframe {
   max-width: 100%;
 }
 
+.video-card {
+  content-visibility: auto;
+  contain-intrinsic-size: 1px 420px;
+}
+
 .site-header {
   position: sticky;
   top: 0;

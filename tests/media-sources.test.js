@@ -72,6 +72,13 @@ test("le catalogue refuse les liens blob, les protocoles actifs et les identifia
   }
 });
 
+test("les sources French Stream utilisent les domaines actuels", () => {
+  assert.deepEqual(
+    Array.from(context.window.BOILED_UTILS.sourceDirectory, (source) => source.url),
+    ["https://french-stream.net/", "https://fs26.lol/", "https://fs27.lol/"]
+  );
+});
+
 test("les anciens films et épisodes conservent leurs sources valides", () => {
   const catalogue = [...context.window.BOILED_VIDEOS, ...context.window.BOILED_EPISODES];
   assert.ok(catalogue.length > 100);
@@ -93,8 +100,9 @@ test("les anciens films et épisodes conservent leurs sources valides", () => {
     }
   }
   const nobody = catalogue.find((item) => item.id === "nobody-2021");
-  assert.equal(nobody.access, "premium");
-  assert.equal(utils.getPlaybackSource(nobody, "FR").embedUrl, "");
-  assert.equal(utils.getPlaybackSource(nobody, "FR", "vidzy").access, "public");
-  assert.equal(utils.getPlaybackSource(nobody, "FR", "vidzy").embedUrl, "https://vidzy.lol/embed-nesqwbdro8kt.html");
+  assert.equal(nobody.access, undefined);
+  assert.equal(utils.getSourceOptions(nobody, "FR").length, 1);
+  assert.equal(utils.getPlaybackSource(nobody, "FR").access, "public");
+  assert.equal(utils.getPlaybackSource(nobody, "FR").embedUrl, "https://vidzy.lol/embed-nesqwbdro8kt.html");
+  assert.equal(catalogue.find((item) => item.id === "nobody-2").sourceName, "Universal Pictures");
 });
