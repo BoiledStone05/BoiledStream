@@ -204,7 +204,7 @@
     }
 
     const featuredItems = Array.from(
-      { length: Math.min(18, Math.max(10, posterSource.length)) },
+      { length: Math.min(8, Math.max(6, posterSource.length)) },
       (_item, index) => posterSource[index % posterSource.length]
     );
     const posterItems = [...featuredItems, ...featuredItems];

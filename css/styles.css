@@ -878,6 +878,30 @@ h3 {
   backface-visibility: hidden;
 }
 
+/* Le catalogue doit rester fluide pendant le défilement : les effets 3D et
+   les filtres animés coûtent plus cher que leur bénéfice visuel. */
+.site-header,
+.toolbar {
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
+.hero-poster-track,
+.video-grid::before {
+  animation: none;
+  will-change: auto;
+}
+
+.video-card {
+  transform: none;
+  transform-style: flat;
+  transition: none;
+}
+
+.video-card::after {
+  display: none;
+}
+
 .video-card::before {
   position: absolute;
   inset: 0;
@@ -945,19 +969,10 @@ h3 {
     linear-gradient(180deg, rgba(var(--accent-rgb), 0.08), transparent 44%),
     #111722;
   border-color: var(--poster-color);
-  box-shadow:
-    0 22px 54px rgba(0, 0, 0, 0.46),
-    0 0 0 1px color-mix(in srgb, var(--poster-color) 18%, transparent),
-    0 0 22px color-mix(in srgb, var(--poster-color) 16%, transparent),
-    inset 0 1px 0 rgba(255, 255, 255, 0.08);
-  filter: saturate(1.025);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.34);
+  filter: none;
   outline: 0;
-  transform:
-    perspective(900px)
-    rotateX(var(--tilt-x, -2deg))
-    rotateY(var(--tilt-y, 2deg))
-    scale(1.035);
-  will-change: transform;
+  transform: none;
 }
 
 .video-card.missing-source.is-hovered,
