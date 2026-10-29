@@ -2865,6 +2865,15 @@ h3 {
     animation: none;
   }
 
+  .video-grid {
+    perspective: none;
+  }
+
+  .video-grid::before {
+    animation: none;
+    will-change: auto;
+  }
+
   .video-card {
     transition: none;
     transform: none;
