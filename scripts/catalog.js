@@ -190,12 +190,6 @@
       return;
     }
 
-    // Le rail décoratif charge beaucoup d'images et n'apporte rien au mobile.
-    if (window.matchMedia?.("(max-width: 720px)").matches) {
-      heroPosterRail.replaceChildren();
-      return;
-    }
-
     const posterSource = videos.filter((video) => video.posterUrl);
 
     if (!posterSource.length) {

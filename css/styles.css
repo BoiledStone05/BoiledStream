@@ -2892,10 +2892,6 @@ h3 {
     -webkit-backdrop-filter: none;
   }
 
-  .hero-poster-track {
-    animation: none;
-  }
-
   .video-grid {
     perspective: none;
   }
@@ -3045,7 +3041,8 @@ h3 {
     grid-auto-columns: 84px;
     grid-template-rows: repeat(2, 126px);
     gap: 10px;
-    animation-duration: 34s;
+    animation: hero-poster-drift 58s linear infinite;
+    will-change: transform;
   }
 
   .hero-poster {
