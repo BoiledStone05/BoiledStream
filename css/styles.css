@@ -521,7 +521,7 @@ h3 {
   min-height: 100%;
   width: max-content;
   padding: 34px 0;
-  animation: hero-poster-drift 96s linear infinite;
+  animation: hero-poster-drift 120s linear infinite;
   will-change: transform;
 }
 
@@ -902,12 +902,7 @@ h3 {
 }
 
 /* Animations GPU-friendly : uniquement transform, jamais background-position. */
-@media (min-width: 721px) and (prefers-reduced-motion: no-preference) {
-  .hero-poster-track {
-    animation: hero-poster-drift 120s linear infinite;
-    will-change: transform;
-  }
-
+@media (prefers-reduced-motion: no-preference) {
   .video-card {
     transition: transform 160ms ease;
   }
