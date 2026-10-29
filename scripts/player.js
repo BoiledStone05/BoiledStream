@@ -405,8 +405,6 @@
     const stage = posterLightbox.querySelector(".poster-lightbox-stage");
 
     const resetTilt = () => {
-      stage?.style.removeProperty("--lightbox-x");
-      stage?.style.removeProperty("--lightbox-y");
       stage?.style.removeProperty("--lightbox-tilt-x");
       stage?.style.removeProperty("--lightbox-tilt-y");
     };
@@ -426,10 +424,8 @@
       const x = Math.min(1, Math.max(0, (event.clientX - rect.left) / rect.width));
       const y = Math.min(1, Math.max(0, (event.clientY - rect.top) / rect.height));
 
-      stage.style.setProperty("--lightbox-x", `${Math.round(x * 100)}%`);
-      stage.style.setProperty("--lightbox-y", `${Math.round(y * 100)}%`);
-      stage.style.setProperty("--lightbox-tilt-x", `${((0.5 - y) * 10).toFixed(2)}deg`);
-      stage.style.setProperty("--lightbox-tilt-y", `${((x - 0.5) * 12).toFixed(2)}deg`);
+      stage.style.setProperty("--lightbox-tilt-x", `${((0.5 - y) * 8).toFixed(2)}deg`);
+      stage.style.setProperty("--lightbox-tilt-y", `${((x - 0.5) * 10).toFixed(2)}deg`);
     });
     stage?.addEventListener("pointerleave", resetTilt);
 
