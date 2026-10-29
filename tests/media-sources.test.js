@@ -103,7 +103,17 @@ test("les anciens films et épisodes conservent leurs sources valides", () => {
   assert.equal(nobody.access, undefined);
   assert.equal(utils.getSourceOptions(nobody, "FR").length, 1);
   assert.equal(utils.getPlaybackSource(nobody, "FR").access, "public");
-  assert.equal(utils.getPlaybackSource(nobody, "FR").embedUrl, "https://vidzy.lol/embed-nesqwbdro8kt.html");
+  assert.equal(
+    utils.getPlaybackSource(nobody, "FR").embedUrl,
+    "https://vidzy.lol/embed-nesqwbdro8kt.html?autoplay=1&fmt=498122&fms=05b11726a1f14b475ac9507251f9ad9e21351e884092e63a27c9d1ab6a153f48#t=110&__fssRsm=1"
+  );
   assert.equal(utils.hasMissingPlayableSource(nobody), false);
-  assert.equal(catalogue.find((item) => item.id === "nobody-2").sourceName, "Universal Pictures");
+  const nobody2 = catalogue.find((item) => item.id === "nobody-2");
+  assert.equal(nobody2.sourceName, "Vidzy");
+  assert.equal(nobody2.language, "FR");
+  assert.equal(
+    utils.getPlaybackSource(nobody2, "FR").embedUrl,
+    "https://vidzy.lol/embed-76kz01t7otes.html?autoplay=1&fmt=498122&fms=05b11726a1f14b475ac9507251f9ad9e21351e884092e63a27c9d1ab6a153f48"
+  );
+  assert.equal(utils.hasMissingPlayableSource(nobody2), false);
 });

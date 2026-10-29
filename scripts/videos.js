@@ -1390,8 +1390,8 @@
             sourceId: "vidzy",
             sourceName: "Vidzy",
             access: "public",
-            sourceUrl: "https://vidzy.lol/embed-nesqwbdro8kt.html",
-            embedUrl: "https://vidzy.lol/embed-nesqwbdro8kt.html"
+            sourceUrl: "https://vidzy.lol/embed-nesqwbdro8kt.html?autoplay=1&fmt=498122&fms=05b11726a1f14b475ac9507251f9ad9e21351e884092e63a27c9d1ab6a153f48#t=110&__fssRsm=1",
+            embedUrl: "https://vidzy.lol/embed-nesqwbdro8kt.html?autoplay=1&fmt=498122&fms=05b11726a1f14b475ac9507251f9ad9e21351e884092e63a27c9d1ab6a153f48#t=110&__fssRsm=1"
           }
         ]
       }
@@ -1403,10 +1403,11 @@
       category: "Film",
       duration: "01:30:00",
       resolution: "HD",
-      language: "EN",
+      language: "FR",
       date: "2025",
-      sourceName: "Universal Pictures",
-      sourceUrl: "https://www.universalpicturesathome.com/movies/nobody-2",
+      sourceName: "Vidzy",
+      sourceUrl: "https://vidzy.lol/embed-76kz01t7otes.html?autoplay=1&fmt=498122&fms=05b11726a1f14b475ac9507251f9ad9e21351e884092e63a27c9d1ab6a153f48",
+      embedUrl: "https://vidzy.lol/embed-76kz01t7otes.html?autoplay=1&fmt=498122&fms=05b11726a1f14b475ac9507251f9ad9e21351e884092e63a27c9d1ab6a153f48",
       posterUrl:
         "https://images.contentstack.io/v3/assets/blt13adb7e2033fcee5/blt85f217c86b02be3d/692a438652940c2134c6eff2/Nobody2_keyart_desktop_2000x3000.jpg?width=800",
       accentColor: "#4f6d73",
