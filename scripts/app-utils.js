@@ -585,7 +585,6 @@
   function bindPosterColorPills(root, selector = ".thumb img") {
     root?.querySelectorAll(selector).forEach((image) => {
       const target = image.closest(".video-card, .series-card");
-      const applyColor = () => sampleDominantImageColor(image, target);
 
       if (!target) {
         return;
@@ -596,12 +595,6 @@
       }
 
       setPosterColor(target, fallbackPosterColor(image.currentSrc || image.src));
-
-      if (image.complete && image.naturalWidth > 0) {
-        applyColor();
-      } else {
-        image.addEventListener("load", applyColor, { once: true });
-      }
     });
   }
 

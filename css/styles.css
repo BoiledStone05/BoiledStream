@@ -2852,6 +2852,30 @@ h3 {
   }
 }
 
+/* Les effets décoratifs sont coûteux sur les petits écrans et ne doivent pas
+   concurrencer le défilement du catalogue. */
+@media (max-width: 720px) {
+  .site-header,
+  .toolbar {
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+
+  .hero-poster-track {
+    animation: none;
+  }
+
+  .video-card {
+    transition: none;
+    transform: none;
+  }
+
+  .video-card:hover,
+  .video-card:focus-visible {
+    transform: none;
+  }
+}
+
 @media (max-width: 980px) {
   .site-header,
   .home-notice,
