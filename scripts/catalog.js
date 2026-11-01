@@ -20,6 +20,10 @@
     lang: "",
     sort: "catalogue"
   };
+  const searchCache = new WeakMap();
+  const tagCache = new WeakMap();
+  const languageCache = new WeakMap();
+  let renderFrame = 0;
 
   if (!utils || !grid || !searchInput) {
     return;
@@ -79,7 +83,11 @@
   }
 
   function searchableText(video) {
-    return [
+    if (searchCache.has(video)) {
+      return searchCache.get(video);
+    }
+
+    const value = normalizeKey([
       video.title,
       video.category,
       video.description,
@@ -89,13 +97,15 @@
       ...(video.tags || [])
     ]
       .filter(Boolean)
-      .join(" ");
+      .join(" "));
+    searchCache.set(video, value);
+    return value;
   }
 
   function matchesSearch(video, queryValue = state.query) {
     const query = normalizeKey(queryValue.trim());
 
-    return !query || normalizeKey(searchableText(video)).includes(query);
+    return !query || searchableText(video).includes(query);
   }
 
   function matchesView(video) {
@@ -115,11 +125,10 @@
     }
 
     const expected = normalizeKey(state.tag);
+    const tags = tagCache.has(video) ? tagCache.get(video) : [normalizeKey(video.category), ...getDisplayTags(video).map(normalizeKey)];
+    tagCache.set(video, tags);
 
-    return (
-      normalizeKey(video.category) === expected ||
-      getDisplayTags(video).some((tag) => normalizeKey(tag) === expected)
-    );
+    return tags.includes(expected);
   }
 
   function matchesYear(video) {
@@ -137,10 +146,11 @@
 
     const expected = normalizeKey(state.lang);
 
-    return getVideoLanguages(video).some(
+    const languages = languageCache.has(video) ? languageCache.get(video) : getVideoLanguages(video).map((language) => [normalizeKey(language), normalizeKey(formatLanguage(language))]);
+    languageCache.set(video, languages);
+    return languages.some(
       (language) =>
-        normalizeKey(language) === expected ||
-        normalizeKey(formatLanguage(language)) === expected
+        language.includes(expected)
     );
   }
 
@@ -187,8 +197,25 @@
       return;
     }
 
+    const viewportWidth = window.innerWidth;
+    const posterWidth = viewportWidth <= 620
+      ? 84
+      : viewportWidth <= 1100
+        ? 126
+        : Math.min(158, Math.max(118, viewportWidth * 0.08));
+    const posterGap = viewportWidth <= 620
+      ? 10
+      : Math.min(26, Math.max(18, viewportWidth * 0.014));
+    const railWidth = Math.max(
+      heroPosterRail.clientWidth,
+      viewportWidth > 1100 ? viewportWidth : viewportWidth <= 620 ? 760 : 720
+    );
+    const columnsToFill = Math.ceil(
+      (railWidth + posterWidth) / (posterWidth + posterGap)
+    );
+    const featuredCount = Math.max(6, columnsToFill * 2);
     const featuredItems = Array.from(
-      { length: Math.max(28, posterSource.length) },
+      { length: featuredCount - (featuredCount % 2) },
       (_item, index) => posterSource[index % posterSource.length]
     );
     const posterItems = [...featuredItems, ...featuredItems];
@@ -198,7 +225,7 @@
           ${posterItems
       .map(
         (video, index) => `
-          <div class="hero-poster" style="--poster-index: ${index};">
+          <div class="hero-poster">
             <div class="generated-poster" aria-hidden="true"></div>
             ${renderPosterImage(video.posterUrl, index < 2 ? "eager" : "lazy")}
           </div>
@@ -246,7 +273,8 @@
 
   searchInput.addEventListener("input", (event) => {
     state.query = event.target.value;
-    renderVideos();
+    cancelAnimationFrame(renderFrame);
+    renderFrame = requestAnimationFrame(renderVideos);
   });
 
   sortSelect?.addEventListener("change", (event) => {
@@ -276,5 +304,10 @@
     seriesCount.textContent = String(seriesItems.length);
   }
   renderHeroPosterRail();
+  let heroPosterResizeTimer;
+  window.addEventListener("resize", () => {
+    window.clearTimeout(heroPosterResizeTimer);
+    heroPosterResizeTimer = window.setTimeout(renderHeroPosterRail, 120);
+  }, { passive: true });
   renderVideos();
 })();

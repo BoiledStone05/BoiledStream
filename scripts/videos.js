@@ -33,7 +33,7 @@
     externalPage(item) {
       return {
         sourceName: item.sourceName || "Page externe",
-        sourceUrl: item.sourceUrl
+        ...(item.sourceUrl ? { sourceUrl: item.sourceUrl } : {})
       };
     },
     externalpage(item) {
@@ -1379,30 +1379,41 @@
       resolution: "HD",
       language: "FR",
       date: "2021",
-      sourceName: "French Stream Premium",
-      sourceUrl: "https://fs27.lol/15107747-nobody.html",
-      access: "premium",
       posterUrl: "https://image.tmdb.org/t/p/w400/oBgWY00bEFeZ9N25wWVyuQddbAo.jpg",
-      accentColor: "#c66b35",
+      // Teinte neutre pour conserver les couleurs de l'affiche sans voile rouge.
+      accentColor: "#405862",
       description: "Après un cambriolage, un père de famille discret révèle un passé violent pour protéger ses proches.",
       tags: ["Action", "Thriller"],
       sources: {
         FR: [
           {
-            sourceId: "premium",
-            sourceName: "French Stream Premium",
-            access: "premium",
-            sourceUrl: "https://fs27.lol/15107747-nobody.html"
-          },
-          {
             sourceId: "vidzy",
             sourceName: "Vidzy",
             access: "public",
-            sourceUrl: "https://vidzy.lol/embed-nesqwbdro8kt.html",
-            embedUrl: "https://vidzy.lol/embed-nesqwbdro8kt.html"
+            sourceUrl: "https://vidzy.lol/embed-nesqwbdro8kt.html?autoplay=1&fmt=498122&fms=05b11726a1f14b475ac9507251f9ad9e21351e884092e63a27c9d1ab6a153f48#t=110&__fssRsm=1",
+            embedUrl: "https://vidzy.lol/embed-nesqwbdro8kt.html?autoplay=1&fmt=498122&fms=05b11726a1f14b475ac9507251f9ad9e21351e884092e63a27c9d1ab6a153f48#t=110&__fssRsm=1"
           }
         ]
       }
+    },
+    {
+      provider: "externalPage",
+      id: "nobody-2",
+      title: "Nobody 2",
+      category: "Film",
+      duration: "01:30:00",
+      resolution: "HD",
+      language: "FR",
+      date: "2025",
+      sourceName: "Vidzy",
+      sourceUrl: "https://vidzy.lol/embed-76kz01t7otes.html?autoplay=1&fmt=498122&fms=05b11726a1f14b475ac9507251f9ad9e21351e884092e63a27c9d1ab6a153f48",
+      embedUrl: "https://vidzy.lol/embed-76kz01t7otes.html?autoplay=1&fmt=498122&fms=05b11726a1f14b475ac9507251f9ad9e21351e884092e63a27c9d1ab6a153f48",
+      posterUrl:
+        "https://images.contentstack.io/v3/assets/blt13adb7e2033fcee5/blt85f217c86b02be3d/692a438652940c2134c6eff2/Nobody2_keyart_desktop_2000x3000.jpg?width=800",
+      accentColor: "#4f6d73",
+      description:
+        "Hutch emmène sa famille en vacances, mais une altercation avec des voyous locaux les place dans le viseur d'une criminelle assoiffée de sang.",
+      tags: ["Action", "Thriller", "Comédie noire"]
     },
     {
       provider: "uqload",
@@ -2048,7 +2059,7 @@
       languages: ["FR"],
       date: "2000",
       sourceName: "Vidzy",
-      sourceUrl: "https://fs3.lol/2839-seul-au-monde-film-streaming-complet-vf.html",
+      sourceUrl: "https://fs27.lol/2839-seul-au-monde-film-streaming-complet-vf.html",
       embedUrl: "https://vidzy.org/embed-dvsmd74eu8hu.html?autoplay=1",
       posterUrl: "https://image.tmdb.org/t/p/w500/7lLJgKnAicAcR5UEuo8xhSMj18w.jpg",
       accentColor: "#5e87a1",
@@ -2059,7 +2070,7 @@
         FR: {
           language: "FR",
           sourceName: "Vidzy",
-          sourceUrl: "https://fs3.lol/2839-seul-au-monde-film-streaming-complet-vf.html",
+          sourceUrl: "https://fs27.lol/2839-seul-au-monde-film-streaming-complet-vf.html",
           embedUrl: "https://vidzy.org/embed-dvsmd74eu8hu.html?autoplay=1"
         }
       }
@@ -2074,7 +2085,7 @@
       languages: ["FR"],
       date: "2006",
       sourceName: "Vidzy",
-      sourceUrl: "https://fs3.lol/209-hyper-tension-film-streaming-complet-vf.html",
+      sourceUrl: "https://fs27.lol/209-hyper-tension-film-streaming-complet-vf.html",
       embedUrl: "https://vidzy.org/embed-pxasigrx2wn1.html?autoplay=1",
       posterUrl: "https://image.tmdb.org/t/p/w500/lN395W1NPfiChHmMIUCa4oFBWGi.jpg",
       accentColor: "#cf4c2f",
@@ -2085,7 +2096,7 @@
         FR: {
           language: "FR",
           sourceName: "Vidzy",
-          sourceUrl: "https://fs3.lol/209-hyper-tension-film-streaming-complet-vf.html",
+          sourceUrl: "https://fs27.lol/209-hyper-tension-film-streaming-complet-vf.html",
           embedUrl: "https://vidzy.org/embed-pxasigrx2wn1.html?autoplay=1"
         }
       }
@@ -2100,7 +2111,7 @@
       languages: ["FR"],
       date: "2009",
       sourceName: "Vidzy",
-      sourceUrl: "https://fs3.lol/292-hyper-tension-2-film-streaming-complet-vf.html",
+      sourceUrl: "https://fs27.lol/292-hyper-tension-2-film-streaming-complet-vf.html",
       embedUrl: "https://vidzy.org/embed-wmh9m055beqs.html?autoplay=1",
       posterUrl: "https://image.tmdb.org/t/p/w500/wWrf8WuysQydx6RlPmdY1ZFezFS.jpg",
       accentColor: "#b62325",
@@ -2111,7 +2122,7 @@
         FR: {
           language: "FR",
           sourceName: "Vidzy",
-          sourceUrl: "https://fs3.lol/292-hyper-tension-2-film-streaming-complet-vf.html",
+          sourceUrl: "https://fs27.lol/292-hyper-tension-2-film-streaming-complet-vf.html",
           embedUrl: "https://vidzy.org/embed-wmh9m055beqs.html?autoplay=1"
         }
       }

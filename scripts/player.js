@@ -71,6 +71,240 @@
   const nextVideo = allVideos[(currentIndex + 1) % allVideos.length];
   let posterLightbox = null;
   let lastFocusedElement = null;
+  const progressStorageKey = "boiledstream.progress.v1";
+  let flushPlaybackProgress = () => {};
+  let activeVidzyProgress = null;
+
+  function readProgressState() {
+    try {
+      const value = JSON.parse(localStorage.getItem(progressStorageKey) || "{}");
+      return {
+        watched: value.watched && typeof value.watched === "object" ? value.watched : {},
+        positions: value.positions && typeof value.positions === "object" ? value.positions : {}
+      };
+    } catch (_error) {
+      return { watched: {}, positions: {} };
+    }
+  }
+
+  function writeProgressState(state) {
+    try {
+      localStorage.setItem(progressStorageKey, JSON.stringify(state));
+      return true;
+    } catch (_error) {
+      return false;
+    }
+  }
+
+  function episodeProgressId(item, season, episode) {
+    return `${item.id}:s${season.number}:e${episode.number}`;
+  }
+
+  function mediaProgressId(item, season, episode) {
+    return season && episode
+      ? `episode:${episodeProgressId(item, season, episode)}`
+      : `movie:${item.id}`;
+  }
+
+  function formatPlaybackTime(seconds) {
+    const time = Math.max(0, Math.floor(Number(seconds) || 0));
+    const hours = Math.floor(time / 3600);
+    const minutes = Math.floor((time % 3600) / 60);
+    const remainingSeconds = time % 60;
+    return hours
+      ? `${hours}:${String(minutes).padStart(2, "0")}:${String(remainingSeconds).padStart(2, "0")}`
+      : `${minutes}:${String(remainingSeconds).padStart(2, "0")}`;
+  }
+
+  function attachProgressTracking(videoElement, item, season = null, episode = null) {
+    if (!videoElement) {
+      return;
+    }
+    activeVidzyProgress = null;
+
+    const progressId = mediaProgressId(item, season, episode);
+    const restoreSavedPosition = () => {
+      const savedTime = Number(readProgressState().positions[progressId]?.time) || 0;
+      if (playerHelp) {
+        playerHelp.innerHTML = savedTime > 5
+          ? `<p class="playback-resume-note">Reprise à ${formatPlaybackTime(savedTime)}</p>`
+          : "";
+      }
+      if (
+        savedTime > 5 &&
+        videoElement.currentTime < 5 &&
+        (!Number.isFinite(videoElement.duration) || savedTime < videoElement.duration - 1)
+      ) {
+        videoElement.currentTime = savedTime;
+      }
+    };
+    videoElement.addEventListener("loadedmetadata", restoreSavedPosition, { once: true });
+    if (videoElement.readyState >= 1) {
+      restoreSavedPosition();
+    }
+
+    let lastSavedAt = 0;
+    const savePosition = (force = false) => {
+      const now = Date.now();
+      if (!force && now - lastSavedAt < 5000) {
+        return;
+      }
+      lastSavedAt = now;
+
+      const state = readProgressState();
+      const currentTime = Number(videoElement.currentTime) || 0;
+      const videoDuration = Number(videoElement.duration) || 0;
+      let episodeCompleted = false;
+      if (videoDuration > 0 && currentTime >= videoDuration - 5) {
+        delete state.positions[progressId];
+        if (season && episode) {
+          state.watched[episodeProgressId(item, season, episode)] = true;
+          episodeCompleted = true;
+        }
+      } else if (currentTime > 5) {
+        state.positions[progressId] = {
+          time: currentTime,
+          duration: videoDuration,
+          updatedAt: now
+        };
+      }
+      writeProgressState(state);
+      if (episodeCompleted) {
+        renderSeriesPanel(item);
+      }
+    };
+
+    flushPlaybackProgress = () => savePosition(true);
+
+    videoElement.addEventListener("timeupdate", () => savePosition());
+    videoElement.addEventListener("pause", () => savePosition(true));
+    videoElement.addEventListener("ended", () => savePosition(true));
+    window.addEventListener("pagehide", () => savePosition(true), { once: true });
+  }
+
+  function attachVidzyProgressTracking(iframe, item, season = null, episode = null, embedUrl = "") {
+    if (!iframe) {
+      return;
+    }
+    let origin;
+    try {
+      const url = new URL(embedUrl, window.location.href);
+      if (!/^vidzy\.(org|lol|live|cc)$/i.test(url.hostname)) {
+        return;
+      }
+      origin = url.origin;
+    } catch (_error) {
+      return;
+    }
+
+    const progressId = mediaProgressId(item, season, episode);
+    const state = readProgressState();
+    const savedTime = Number(state.positions[progressId]?.time) || 0;
+    activeVidzyProgress = {
+      iframe,
+      origin,
+      item,
+      season,
+      episode,
+      progressId,
+      savedTime,
+      duration: Number(state.positions[progressId]?.duration) || 0,
+      currentTime: 0,
+      lastSavedAt: 0,
+      resumeSent: false
+    };
+    flushPlaybackProgress = () => saveVidzyProgress(true);
+
+    if (playerHelp) {
+      playerHelp.innerHTML = savedTime > 5
+        ? `<p class="playback-resume-note">Reprise à ${formatPlaybackTime(savedTime)}</p>`
+        : "";
+    }
+  }
+
+  function sendVidzyResume(progress) {
+    if (!progress || progress.resumeSent || progress.savedTime <= 5) {
+      return;
+    }
+    try {
+      progress.iframe.contentWindow.postMessage(
+        { action: "seek", value: progress.savedTime },
+        progress.origin
+      );
+      progress.resumeSent = true;
+    } catch (_error) {
+      // A later ready or time update can retry after the embedded player loads.
+    }
+  }
+
+  function saveVidzyProgress(force = false) {
+    const progress = activeVidzyProgress;
+    if (!progress || progress.currentTime <= 5) {
+      return;
+    }
+    const now = Date.now();
+    if (!force && now - progress.lastSavedAt < 5000) {
+      return;
+    }
+    progress.lastSavedAt = now;
+    const state = readProgressState();
+    let episodeCompleted = false;
+    if (progress.duration > 0 && progress.currentTime >= progress.duration - 5) {
+      delete state.positions[progress.progressId];
+      if (progress.season && progress.episode) {
+        state.watched[episodeProgressId(progress.item, progress.season, progress.episode)] = true;
+        episodeCompleted = true;
+      }
+    } else {
+      state.positions[progress.progressId] = {
+        time: progress.currentTime,
+        duration: progress.duration,
+        updatedAt: now
+      };
+    }
+    writeProgressState(state);
+    if (episodeCompleted) {
+      renderSeriesPanel(progress.item);
+    }
+  }
+
+  window.addEventListener("message", (event) => {
+    const progress = activeVidzyProgress;
+    if (!progress || event.source !== progress.iframe.contentWindow || event.origin !== progress.origin) {
+      return;
+    }
+    let data = event.data;
+    if (typeof data === "string") {
+      try {
+        data = JSON.parse(data);
+      } catch (_error) {
+        return;
+      }
+    }
+    if (!data || typeof data !== "object") {
+      return;
+    }
+
+    const action = data.action || data.event || data.type;
+    if (["videoLoaded", "loadedmetadata"].includes(action)) {
+      progress.duration = Number(data.duration) || progress.duration;
+      sendVidzyResume(progress);
+      return;
+    }
+    if (["timeupdate", "currentTime"].includes(action)) {
+      progress.currentTime = Number(data.currentTime ?? data.time) || 0;
+      progress.duration = Number(data.duration) || progress.duration;
+      sendVidzyResume(progress);
+      saveVidzyProgress();
+      return;
+    }
+    if (["videoEnded", "complete", "ended"].includes(action)) {
+      progress.currentTime = progress.duration || progress.currentTime;
+      saveVidzyProgress(true);
+    }
+  });
+
+  window.addEventListener("pagehide", () => flushPlaybackProgress());
 
   function normalizeHexColor(value) {
     const color = String(value || "").trim();
@@ -171,8 +405,6 @@
     const stage = posterLightbox.querySelector(".poster-lightbox-stage");
 
     const resetTilt = () => {
-      stage?.style.removeProperty("--lightbox-x");
-      stage?.style.removeProperty("--lightbox-y");
       stage?.style.removeProperty("--lightbox-tilt-x");
       stage?.style.removeProperty("--lightbox-tilt-y");
     };
@@ -192,10 +424,8 @@
       const x = Math.min(1, Math.max(0, (event.clientX - rect.left) / rect.width));
       const y = Math.min(1, Math.max(0, (event.clientY - rect.top) / rect.height));
 
-      stage.style.setProperty("--lightbox-x", `${Math.round(x * 100)}%`);
-      stage.style.setProperty("--lightbox-y", `${Math.round(y * 100)}%`);
-      stage.style.setProperty("--lightbox-tilt-x", `${((0.5 - y) * 10).toFixed(2)}deg`);
-      stage.style.setProperty("--lightbox-tilt-y", `${((x - 0.5) * 12).toFixed(2)}deg`);
+      stage.style.setProperty("--lightbox-tilt-x", `${((0.5 - y) * 8).toFixed(2)}deg`);
+      stage.style.setProperty("--lightbox-tilt-y", `${((x - 0.5) * 10).toFixed(2)}deg`);
     });
     stage?.addEventListener("pointerleave", resetTilt);
 
@@ -678,9 +908,11 @@
       .filter(Boolean)
       .map((entry) => `<span>${escapeHtml(entry)}</span>`)
       .join("");
+    const watchedEpisodes = readProgressState().watched;
     const episodeButtons = (season.episodes || [])
       .map((entry) => {
         const isActive = hasEpisodeSelection && entry.number === episode.number;
+        const isWatched = Boolean(watchedEpisodes[episodeProgressId(item, season, entry)]);
         const entryPlayback = getEpisodePlaybackSource(entry, language);
         const hasEpisodeSource = hasPlayableSource({
           ...entry,
@@ -689,9 +921,12 @@
         });
         const missingSourceClass = hasEpisodeSource ? "" : " missing-source";
         return `
-          <button class="episode-button${isActive ? " active" : ""}${missingSourceClass}" type="button" data-episode="${entry.number}" aria-pressed="${isActive}">
-            <span>Ep ${entry.number}</span>
-          </button>
+          <div class="episode-item">
+            <button class="episode-button${isActive ? " active" : ""}${isWatched ? " watched" : ""}${missingSourceClass}" type="button" data-episode="${entry.number}" aria-pressed="${isActive}" aria-label="Épisode ${entry.number}${isWatched ? ", vu" : ""}">
+              <span>Ep ${entry.number}</span>
+            </button>
+            <input class="episode-watched-checkbox" type="checkbox" data-toggle-watched="${entry.number}"${isWatched ? " checked" : ""} aria-label="Épisode ${entry.number} vu">
+          </div>
         `;
       })
       .join("");
@@ -801,6 +1036,31 @@
       });
     });
 
+    seriesPanel.querySelectorAll("[data-toggle-watched]").forEach((button) => {
+      button.addEventListener("change", () => {
+        const episodeNumber = Number(button.dataset.toggleWatched);
+        const entry = season.episodes?.find((candidate) => candidate.number === episodeNumber);
+        if (!entry) {
+          return;
+        }
+        const state = readProgressState();
+        const progressId = episodeProgressId(item, season, entry);
+        const isWatched = button.checked;
+        if (!isWatched) {
+          delete state.watched[progressId];
+        } else {
+          state.watched[progressId] = true;
+          delete state.positions[`episode:${progressId}`];
+        }
+        writeProgressState(state);
+        const episodePill = button.closest(".episode-item")?.querySelector(".episode-button");
+        episodePill?.classList.toggle("watched", isWatched);
+        if (episodePill) {
+          episodePill.setAttribute("aria-label", `Épisode ${episodeNumber}${isWatched ? ", vu" : ""}`);
+        }
+      });
+    });
+
     seriesPanel.querySelectorAll("[data-language]").forEach((button) => {
       button.addEventListener("click", () => {
         const nextLanguage = button.dataset.language || language;
@@ -906,6 +1166,9 @@
   }
 
   function renderEpisodePlayback(item, season, episode, language) {
+    flushPlaybackProgress();
+    activeVidzyProgress = null;
+    flushPlaybackProgress = () => {};
     showPlayerMount();
 
     const playback = getEpisodePlaybackSource(episode, language);
@@ -943,6 +1206,13 @@
         if (playerHelp) {
           playerHelp.innerHTML = "";
         }
+        attachVidzyProgressTracking(
+          playerMount.querySelector("iframe"),
+          item,
+          season,
+          episode,
+          playback.embedUrl
+        );
       }
       renderSeriesPanel(item);
       return true;
@@ -959,6 +1229,7 @@
       if (playerHelp) {
         playerHelp.innerHTML = "";
       }
+      attachProgressTracking(playerMount.querySelector("video"), item, season, episode);
       renderSeriesPanel(item);
       return true;
     }
@@ -1125,6 +1396,9 @@
       return;
     }
 
+    flushPlaybackProgress();
+    activeVidzyProgress = null;
+    flushPlaybackProgress = () => {};
     showPlayerMount();
     const movieState = getMovieState(item);
     const hasMovieSources = hasAnySource(item);
@@ -1204,6 +1478,13 @@
       if (playerHelp) {
         playerHelp.innerHTML = "";
       }
+      attachVidzyProgressTracking(
+        playerMount.querySelector("iframe"),
+        item,
+        null,
+        null,
+        playbackItem.embedUrl
+      );
       return;
     }
 
@@ -1219,6 +1500,7 @@
       if (playerHelp) {
         playerHelp.innerHTML = "";
       }
+      attachProgressTracking(playerMount.querySelector("video"), item);
       return;
     }
 
@@ -1592,6 +1874,12 @@
   renderMetadata(video);
   renderNavigation();
   renderRelated();
+
+  window.addEventListener("storage", (event) => {
+    if (event.key === progressStorageKey && video.type === "series") {
+      renderSeriesPanel(video);
+    }
+  });
 
   playerPoster?.addEventListener("click", () => {
     openPosterLightbox(playerPoster.dataset.posterSrc, video.title);

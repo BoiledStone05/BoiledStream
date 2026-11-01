@@ -1,4 +1,9 @@
 (function () {
+  const SOURCE_DIRECTORY = Object.freeze([
+    { label: "French-Stream.net", url: "https://french-stream.net/" },
+    { label: "FS26", url: "https://fs26.lol/" },
+    { label: "FS27", url: "https://fs27.lol/" }
+  ]);
   const HIDDEN_TAGS = new Set([
     "film",
     "serie",
@@ -290,6 +295,7 @@
     }
 
     if (
+      getSafeSourceUrl(item.embedUrl) ||
       hasUsableMediaValue(item.embedUrl) ||
       hasUsableMediaValue(item.videoUrl) ||
       hasUsableMediaValue(item.sourceUrl)
@@ -579,7 +585,6 @@
   function bindPosterColorPills(root, selector = ".thumb img") {
     root?.querySelectorAll(selector).forEach((image) => {
       const target = image.closest(".video-card, .series-card");
-      const applyColor = () => sampleDominantImageColor(image, target);
 
       if (!target) {
         return;
@@ -590,12 +595,6 @@
       }
 
       setPosterColor(target, fallbackPosterColor(image.currentSrc || image.src));
-
-      if (image.complete && image.naturalWidth > 0) {
-        applyColor();
-      } else {
-        image.addEventListener("load", applyColor, { once: true });
-      }
     });
   }
 
@@ -627,9 +626,7 @@
     <span><strong>Attention :</strong> ces lecteurs externes peuvent afficher des publicités à caractère sexuel. Utilisez un bloqueur de publicités et ne communiquez aucune information personnelle.</span>
   </p>
   <ul class="source-list">
-    <li><a href="https://french-stream.one/" target="_blank" rel="noopener noreferrer nofollow">French-Stream</a></li>
-    <li><a href="https://fs2.lol/" target="_blank" rel="noopener noreferrer nofollow">FS2</a></li>
-    <li><a href="https://fs3.lol/" target="_blank" rel="noopener noreferrer nofollow">FS3</a></li>
+    ${SOURCE_DIRECTORY.map(({ label, url }) => `<li><a href="${url}" target="_blank" rel="noopener noreferrer nofollow">${label}</a></li>`).join("")}
     <li><a href="https://fmoviesto.me/" target="_blank" rel="noopener noreferrer nofollow">FMoviesTo</a></li>
   </ul>
 </section>`);
@@ -653,6 +650,7 @@
     getDisplayTags,
     getVideoLanguages,
     getSafeSourceUrl,
+    sourceDirectory: SOURCE_DIRECTORY,
     getSourceOptions,
     getPlaybackSource,
     hasPlayableSource,
