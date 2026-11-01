@@ -12,3 +12,6 @@ Site statique de présentation vidéo avec:
 Ouvrir `index.html` dans un navigateur pour tester le site.
 
 Voir `README2.md` pour l'organisation du projet et la procédure d'ajout d'un film.
+
+Voir [les sources avec compte et premium](docs/premium-sources.md) pour ajouter
+plusieurs hébergeurs par langue sans publier d'identifiants. Validation : `node --test`.

@@ -301,469 +301,573 @@
     }
   ];
 
-  const SUPERNATURAL_EN_EPISODES = [
+  const SUPERNATURAL_EPISODES = [
     {
       id: "supernatural-s01e01",
-      provider: "dailymotion",
       title: "Pilot",
       seasonNumber: 1,
       episodeNumber: 1,
-      videoId: "k4Kgvh7o91dnnrGw7Yi",
-      duration: "00:46:21",
-      resolution: "1280x720"
+      sources: {
+        EN: {
+          language: "EN",
+          sourceName: "Google Drive",
+          sourceUrl:
+            "https://drive.google.com/file/d/1cTL0ZvSHBMlzRCHV1vY3QaBXyAknOjh8/view",
+          embedUrl:
+            "https://drive.google.com/file/d/1cTL0ZvSHBMlzRCHV1vY3QaBXyAknOjh8/preview"
+        }
+      }
     },
     {
       id: "supernatural-s01e02",
-      provider: "dailymotion",
       title: "Wendigo",
       seasonNumber: 1,
       episodeNumber: 2,
-      videoId: "k4MJDmehjRt5FwGw96m",
-      duration: "00:43:07",
-      resolution: "1280x720"
+      sources: {
+        EN: {
+          language: "EN",
+          sourceName: "Google Drive",
+          sourceUrl:
+            "https://drive.google.com/file/d/14SomOws6GKHzJ2lBsOVmuyprCXFuqJ9o/view",
+          embedUrl:
+            "https://drive.google.com/file/d/14SomOws6GKHzJ2lBsOVmuyprCXFuqJ9o/preview"
+        }
+      }
     },
     {
       id: "supernatural-s01e03",
-      provider: "dailymotion",
       title: "Dead in the Water",
       seasonNumber: 1,
       episodeNumber: 3,
-      videoId: "k7CPLjTEgI3VNgGw96q",
-      duration: "00:43:31",
-      resolution: "1280x720"
+      sources: {
+        EN: {
+          language: "EN",
+          sourceName: "Google Drive",
+          sourceUrl:
+            "https://drive.google.com/file/d/1WfnGqsVqYZoMjiDI7ICsf7UJo3MDsvVz/view",
+          embedUrl:
+            "https://drive.google.com/file/d/1WfnGqsVqYZoMjiDI7ICsf7UJo3MDsvVz/preview"
+        }
+      }
     },
     {
       id: "supernatural-s01e04",
-      provider: "dailymotion",
       title: "Phantom Traveler",
       seasonNumber: 1,
       episodeNumber: 4,
-      videoId: "kWrm8BI2BLThxPGwcAG",
-      duration: "00:42:12",
-      resolution: "1280x720"
+      sources: {
+        EN: {
+          language: "EN",
+          sourceName: "Google Drive",
+          sourceUrl:
+            "https://drive.google.com/file/d/1gtTkRraOh0IlfJTaDQYhBrfg_ENwmGWC/view",
+          embedUrl:
+            "https://drive.google.com/file/d/1gtTkRraOh0IlfJTaDQYhBrfg_ENwmGWC/preview"
+        }
+      }
     },
     {
       id: "supernatural-s01e05",
-      provider: "dailymotion",
       title: "Bloody Mary",
       seasonNumber: 1,
       episodeNumber: 5,
-      videoId: "kqcvwaYDB6184RGwcIC",
-      duration: "00:43:14",
-      resolution: "1280x720"
+      sources: {
+        EN: {
+          language: "EN",
+          sourceName: "Google Drive",
+          sourceUrl:
+            "https://drive.google.com/file/d/1IOGk5gN55ahCL_t2aEXvJ5VQ4lBYkA1Q/view",
+          embedUrl:
+            "https://drive.google.com/file/d/1IOGk5gN55ahCL_t2aEXvJ5VQ4lBYkA1Q/preview"
+        }
+      }
     },
     {
       id: "supernatural-s01e06",
-      provider: "dailymotion",
       title: "Skin",
       seasonNumber: 1,
       episodeNumber: 6,
-      videoId: "k3tNdFLaQpEQMiGwcNc",
-      duration: "00:41:50",
-      resolution: "1280x720"
+      sources: {
+        EN: {
+          language: "EN",
+          sourceName: "Google Drive",
+          sourceUrl:
+            "https://drive.google.com/file/d/1zae_ivJky3v9u1f52Isxb1d_ASo8_qWx/view",
+          embedUrl:
+            "https://drive.google.com/file/d/1zae_ivJky3v9u1f52Isxb1d_ASo8_qWx/preview"
+        }
+      }
     },
     {
       id: "supernatural-s01e07",
-      provider: "dailymotion",
       title: "Hook Man",
       seasonNumber: 1,
       episodeNumber: 7,
-      videoId: "k4ReTDJSgIJchIGyLe6",
-      duration: "00:40:39",
-      resolution: "1280x720"
+      sources: {
+        EN: {
+          language: "EN",
+          sourceName: "Google Drive",
+          sourceUrl:
+            "https://drive.google.com/file/d/1vhLO_2_7KS8KH20hparx7V7A1iX-NXgM/view",
+          embedUrl:
+            "https://drive.google.com/file/d/1vhLO_2_7KS8KH20hparx7V7A1iX-NXgM/preview"
+        }
+      }
     },
     {
       id: "supernatural-s01e08",
-      provider: "dailymotion",
       title: "Bugs",
       seasonNumber: 1,
       episodeNumber: 8,
-      videoId: "k9GvOvsnN1YAERGyLjg",
-      duration: "00:43:08",
-      resolution: "1280x720"
+      sources: {
+        EN: {
+          language: "EN",
+          sourceName: "Google Drive",
+          sourceUrl:
+            "https://drive.google.com/file/d/1nL_sCN32AW9UHieTsk1W5_yUtoNNp2nl/view",
+          embedUrl:
+            "https://drive.google.com/file/d/1nL_sCN32AW9UHieTsk1W5_yUtoNNp2nl/preview"
+        }
+      }
     },
     {
       id: "supernatural-s01e09",
-      provider: "dailymotion",
       title: "Home",
       seasonNumber: 1,
       episodeNumber: 9,
-      videoId: "ktffjKeR2qENNjGyLjk",
-      duration: "00:42:57",
-      resolution: "1280x720"
+      sources: {
+        EN: {
+          language: "EN",
+          sourceName: "Google Drive",
+          sourceUrl:
+            "https://drive.google.com/file/d/17Q1u4KuyqnLA8DHYt6T_Gk_CpMKAxaq-/view",
+          embedUrl:
+            "https://drive.google.com/file/d/17Q1u4KuyqnLA8DHYt6T_Gk_CpMKAxaq-/preview"
+        }
+      }
     },
     {
       id: "supernatural-s01e10",
-      provider: "dailymotion",
       title: "Asylum",
       seasonNumber: 1,
       episodeNumber: 10,
-      videoId: "k33mvqpriQGgtlGyLjo",
-      duration: "00:43:18",
-      resolution: "1280x720"
+      sources: {
+        EN: {
+          language: "EN",
+          sourceName: "Google Drive",
+          sourceUrl:
+            "https://drive.google.com/file/d/1rxKWZyevoB09MEERyIvKKHxU1HMd1Vit/view",
+          embedUrl:
+            "https://drive.google.com/file/d/1rxKWZyevoB09MEERyIvKKHxU1HMd1Vit/preview"
+        }
+      }
     },
     {
       id: "supernatural-s01e11",
-      provider: "dailymotion",
       title: "Scarecrow",
       seasonNumber: 1,
       episodeNumber: 11,
-      videoId: "k929VNIg1c7yEPGQ9hM",
-      duration: "00:42:38",
-      resolution: "1280x720"
+      sources: {
+        EN: {
+          language: "EN",
+          sourceName: "Google Drive",
+          sourceUrl:
+            "https://drive.google.com/file/d/1TnOcuJYAh4b8anjpQjPUMdeAUHsb5Mi7/view",
+          embedUrl:
+            "https://drive.google.com/file/d/1TnOcuJYAh4b8anjpQjPUMdeAUHsb5Mi7/preview"
+        }
+      }
     },
     {
       id: "supernatural-s01e12",
-      provider: "dailymotion",
       title: "Faith",
       seasonNumber: 1,
       episodeNumber: 12,
-      videoId: "k29RBG9IvWg4MsH9lqS",
-      duration: "00:43:21",
-      resolution: "1280x720"
+      sources: {
+        EN: {
+          language: "EN",
+          sourceName: "Google Drive",
+          sourceUrl:
+            "https://drive.google.com/file/d/1Kp1FsMP7F1YgZCpdsRu4cFKlrx8hpI8X/view",
+          embedUrl:
+            "https://drive.google.com/file/d/1Kp1FsMP7F1YgZCpdsRu4cFKlrx8hpI8X/preview"
+        }
+      }
     },
     {
       id: "supernatural-s01e13",
-      provider: "dailymotion",
       title: "Route 666",
       seasonNumber: 1,
       episodeNumber: 13,
-      videoId: "k4e5UUJNHDQeDpH9lZs",
-      duration: "00:40:13",
-      resolution: "1280x720"
+      sources: {
+        EN: {
+          language: "EN",
+          sourceName: "Google Drive",
+          sourceUrl:
+            "https://drive.google.com/file/d/1LFyxmSpp8jAHUGU_-P_nY0ZuEBE5G3u7/view",
+          embedUrl:
+            "https://drive.google.com/file/d/1LFyxmSpp8jAHUGU_-P_nY0ZuEBE5G3u7/preview"
+        }
+      }
     },
     {
       id: "supernatural-s01e14",
-      provider: "dailymotion",
       title: "Nightmare",
       seasonNumber: 1,
       episodeNumber: 14,
-      videoId: "k1LQwD9ytCC7vwGQ9hY",
-      duration: "00:42:49",
-      resolution: "1280x720"
+      sources: {
+        EN: {
+          language: "EN",
+          sourceName: "Google Drive",
+          sourceUrl:
+            "https://drive.google.com/file/d/1tgZD8kNjqXY1FBBN7UIzo-TiKZoacvWC/view",
+          embedUrl:
+            "https://drive.google.com/file/d/1tgZD8kNjqXY1FBBN7UIzo-TiKZoacvWC/preview"
+        }
+      }
     },
     {
       id: "supernatural-s01e15",
-      provider: "dailymotion",
       title: "The Benders",
       seasonNumber: 1,
       episodeNumber: 15,
-      videoId: "k5iQzIB5Dd8bb1H9lZo",
-      duration: "00:43:11",
-      resolution: "1280x720"
+      sources: {
+        EN: {
+          language: "EN",
+          sourceName: "Google Drive",
+          sourceUrl:
+            "https://drive.google.com/file/d/1sEab6UciYK2Ri8RaWzGnRoOXko_BnYTf/view",
+          embedUrl:
+            "https://drive.google.com/file/d/1sEab6UciYK2Ri8RaWzGnRoOXko_BnYTf/preview"
+        }
+      }
     },
     {
       id: "supernatural-s01e16",
-      provider: "dailymotion",
       title: "Shadow",
       seasonNumber: 1,
       episodeNumber: 16,
-      videoId: "k2k4mkXKt6CASWGQ9hU",
-      duration: "00:41:48",
-      resolution: "1280x720"
+      sources: {
+        EN: {
+          language: "EN",
+          sourceName: "Google Drive",
+          sourceUrl:
+            "https://drive.google.com/file/d/1EubH5Gw8jFMwUzsaCOppD7KVDMZHoPZW/view",
+          embedUrl:
+            "https://drive.google.com/file/d/1EubH5Gw8jFMwUzsaCOppD7KVDMZHoPZW/preview"
+        }
+      }
     },
     {
       id: "supernatural-s01e17",
-      provider: "dailymotion",
       title: "Hell House",
       seasonNumber: 1,
       episodeNumber: 17,
-      videoId: "k5L6wkLeoV5QF7GQ9ia",
-      duration: "00:40:42",
-      resolution: "1280x720"
+      sources: {
+        EN: {
+          language: "EN",
+          sourceName: "Google Drive",
+          sourceUrl:
+            "https://drive.google.com/file/d/1IwOU0zEx77potk41zUawk_wv79UpcFid/view",
+          embedUrl:
+            "https://drive.google.com/file/d/1IwOU0zEx77potk41zUawk_wv79UpcFid/preview"
+        }
+      }
     },
     {
       id: "supernatural-s01e18",
-      provider: "dailymotion",
       title: "Somethings Wicked",
       seasonNumber: 1,
       episodeNumber: 18,
-      videoId: "kOzUCPsNcLAshoGQ9ie",
-      duration: "00:41:50",
-      resolution: "1280x720"
+      sources: {
+        EN: {
+          language: "EN",
+          sourceName: "Google Drive",
+          sourceUrl:
+            "https://drive.google.com/file/d/1vSstlDWBZVbSzomYBQm7_BfCXLWdw3nO/view",
+          embedUrl:
+            "https://drive.google.com/file/d/1vSstlDWBZVbSzomYBQm7_BfCXLWdw3nO/preview"
+        }
+      }
     },
     {
       id: "supernatural-s01e19",
-      provider: "dailymotion",
       title: "Provenance",
       seasonNumber: 1,
       episodeNumber: 19,
-      videoId: "k4NOpXBOtKMFKeGQ9i6",
-      duration: "00:43:28",
-      resolution: "1280x720"
+      sources: {
+        EN: {
+          language: "EN",
+          sourceName: "Google Drive",
+          sourceUrl:
+            "https://drive.google.com/file/d/1-4koks49UIetcFqUxrVck43doTqa-HwX/view",
+          embedUrl:
+            "https://drive.google.com/file/d/1-4koks49UIetcFqUxrVck43doTqa-HwX/preview"
+        }
+      }
     },
     {
       id: "supernatural-s01e20",
-      provider: "dailymotion",
       title: "Dead Man's Blood",
       seasonNumber: 1,
       episodeNumber: 20,
-      videoId: "kWiHOEGVrVjs5EH9lr0",
-      duration: "00:41:57",
-      resolution: "1280x720"
+      sources: {
+        EN: {
+          language: "EN",
+          sourceName: "Google Drive",
+          sourceUrl:
+            "https://drive.google.com/file/d/1hzTDnVPY6vdE6EUYqp7qSX1zvYR92wX_/view",
+          embedUrl:
+            "https://drive.google.com/file/d/1hzTDnVPY6vdE6EUYqp7qSX1zvYR92wX_/preview"
+        }
+      }
     },
     {
       id: "supernatural-s01e21",
-      provider: "dailymotion",
       title: "Salvation",
       seasonNumber: 1,
       episodeNumber: 21,
-      videoId: "k53eDeMGPMwtPKH9lqW",
-      duration: "00:40:43",
-      resolution: "1280x720"
+      sources: {
+        EN: {
+          language: "EN",
+          sourceName: "Google Drive",
+          sourceUrl:
+            "https://drive.google.com/file/d/1QQZRX1YzFoTNtKj0V0HDvgaXa8b-lZQd/view",
+          embedUrl:
+            "https://drive.google.com/file/d/1QQZRX1YzFoTNtKj0V0HDvgaXa8b-lZQd/preview"
+        }
+      }
     },
     {
       id: "supernatural-s01e22",
-      provider: "dailymotion",
       title: "Devil's Trap",
       seasonNumber: 1,
       episodeNumber: 22,
-      videoId: "k6iPGmB8cGoR9dH9lrc",
-      duration: "00:42:41",
-      resolution: "1280x720"
+      sources: {
+        EN: {
+          language: "EN",
+          sourceName: "Google Drive",
+          sourceUrl:
+            "https://drive.google.com/file/d/1RQKrk_JRAViH7ZE7S7Og6X3_m9IZgROR/view",
+          embedUrl:
+            "https://drive.google.com/file/d/1RQKrk_JRAViH7ZE7S7Og6X3_m9IZgROR/preview"
+        }
+      }
     },
-  ];
-
-  const SUPERNATURAL_S02_EPISODES = [
     {
       id: "supernatural-s02e01",
-      provider: "dailymotion",
       title: "In My Time of Dying",
       seasonNumber: 2,
       episodeNumber: 1,
-      videoId: "k4M9PiDZ383IF0H9mm6",
-      duration: "00:41:56",
-      resolution: "1280x720"
+      sources: {
+        EN: {
+          language: "EN",
+          sourceName: "Google Drive",
+          sourceUrl:
+            "https://drive.google.com/file/d/192SVn9MGv74YCCDdD2km7JDtP81Xned4/view",
+          embedUrl:
+            "https://drive.google.com/file/d/192SVn9MGv74YCCDdD2km7JDtP81Xned4/preview"
+        }
+      }
     },
     {
       id: "supernatural-s02e02",
-      provider: "dailymotion",
       title: "Everybody Loves a Clown",
       seasonNumber: 2,
       episodeNumber: 2,
-      videoId: "k1LoWNtIBz52snH9mCS",
-      duration: "00:41:42",
-      resolution: "1280x720"
+      sources: {
+        EN: {
+          language: "EN",
+          sourceName: "Google Drive",
+          sourceUrl:
+            "https://drive.google.com/file/d/1950UUtXLJ5MDRTnuQfPnkdS2TSqwzsuf/view",
+          embedUrl:
+            "https://drive.google.com/file/d/1950UUtXLJ5MDRTnuQfPnkdS2TSqwzsuf/preview"
+        }
+      }
     },
     {
       id: "supernatural-s02e03",
-      provider: "dailymotion",
       title: "Bloodlust",
       seasonNumber: 2,
       episodeNumber: 3,
-      videoId: "",
-      duration: "--:--:--",
-      resolution: "1280x720"
+      sources: {
+        EN: {
+          language: "EN",
+          sourceName: "Google Drive",
+          sourceUrl:
+            "https://drive.google.com/file/d/1wouLJGyboEEm81U_9BpmsgvhbTxU56UM/view",
+          embedUrl:
+            "https://drive.google.com/file/d/1wouLJGyboEEm81U_9BpmsgvhbTxU56UM/preview"
+        }
+      }
     },
     {
       id: "supernatural-s02e04",
-      provider: "dailymotion",
       title: "Children Shouldn't Play with Dead Things",
       seasonNumber: 2,
       episodeNumber: 4,
-      videoId: "",
-      duration: "--:--:--",
-      resolution: "1280x720"
+      sources: {
+        EN: {
+          language: "EN",
+          sourceName: "Google Drive",
+          sourceUrl:
+            "https://drive.google.com/file/d/1r0sUGevnlVvSoOgHyQ3aPkedtrlTxNx3/view",
+          embedUrl:
+            "https://drive.google.com/file/d/1r0sUGevnlVvSoOgHyQ3aPkedtrlTxNx3/preview"
+        }
+      }
     },
     {
       id: "supernatural-s02e05",
-      provider: "dailymotion",
       title: "Simon Said",
       seasonNumber: 2,
       episodeNumber: 5,
-      videoId: "",
-      duration: "--:--:--",
-      resolution: "1280x720"
+      sources: {
+        EN: {
+          language: "EN",
+          sourceName: "Google Drive",
+          sourceUrl:
+            "https://drive.google.com/file/d/1ZmUzuQD3-8UYZJSHcyMFc7vHbAoWY_A_/view",
+          embedUrl:
+            "https://drive.google.com/file/d/1ZmUzuQD3-8UYZJSHcyMFc7vHbAoWY_A_/preview"
+        }
+      }
     },
     {
       id: "supernatural-s02e06",
-      provider: "dailymotion",
       title: "No Exit",
       seasonNumber: 2,
       episodeNumber: 6,
-      videoId: "",
-      duration: "--:--:--",
-      resolution: "1280x720"
+      sources: {
+        EN: {
+          language: "EN",
+          sourceName: "Google Drive",
+          sourceUrl:
+            "",
+          embedUrl:
+            ""
+        }
+      }
     },
     {
       id: "supernatural-s02e07",
-      provider: "dailymotion",
       title: "The Usual Suspects",
       seasonNumber: 2,
       episodeNumber: 7,
-      videoId: "",
-      duration: "--:--:--",
-      resolution: "1280x720"
+      sources: {
+        EN: {
+          language: "EN",
+          sourceName: "Google Drive",
+          sourceUrl:
+            "",
+          embedUrl:
+            ""
+        }
+      }
     },
     {
       id: "supernatural-s02e08",
-      provider: "dailymotion",
       title: "Crossroad Blues",
       seasonNumber: 2,
       episodeNumber: 8,
-      videoId: "",
-      duration: "--:--:--",
-      resolution: "1280x720"
+      sources: {
+        EN: {
+          language: "EN",
+          sourceName: "Google Drive",
+          sourceUrl:
+            "",
+          embedUrl:
+            ""
+        }
+      }
     },
     {
       id: "supernatural-s02e09",
-      provider: "dailymotion",
-      title: "Croatoan",
+      title: "Crossroad Blues",
       seasonNumber: 2,
       episodeNumber: 9,
-      videoId: "",
-      duration: "--:--:--",
-      resolution: "1280x720"
-    },
-    {
-      id: "supernatural-s02e10",
-      provider: "dailymotion",
-      title: "Hunted",
-      seasonNumber: 2,
-      episodeNumber: 10,
-      videoId: "",
-      duration: "--:--:--",
-      resolution: "1280x720"
-    },
-    {
-      id: "supernatural-s02e11",
-      provider: "dailymotion",
-      title: "Playthings",
-      seasonNumber: 2,
-      episodeNumber: 11,
-      videoId: "",
-      duration: "--:--:--",
-      resolution: "1280x720"
-    },
-    {
-      id: "supernatural-s02e12",
-      provider: "dailymotion",
-      title: "Nightshifter",
-      seasonNumber: 2,
-      episodeNumber: 12,
-      videoId: "",
-      duration: "--:--:--",
-      resolution: "1280x720"
-    },
-    {
-      id: "supernatural-s02e13",
-      provider: "dailymotion",
-      title: "Houses of the Holy",
-      seasonNumber: 2,
-      episodeNumber: 13,
-      videoId: "",
-      duration: "--:--:--",
-      resolution: "1280x720"
-    },
-    {
-      id: "supernatural-s02e14",
-      provider: "dailymotion",
-      title: "Born Under a Bad Sign",
-      seasonNumber: 2,
-      episodeNumber: 14,
-      videoId: "",
-      duration: "--:--:--",
-      resolution: "1280x720"
-    },
-    {
-      id: "supernatural-s02e15",
-      provider: "dailymotion",
-      title: "Tall Tales",
-      seasonNumber: 2,
-      episodeNumber: 15,
-      videoId: "",
-      duration: "--:--:--",
-      resolution: "1280x720"
-    },
-    {
-      id: "supernatural-s02e16",
-      provider: "dailymotion",
-      title: "Roadkill",
-      seasonNumber: 2,
-      episodeNumber: 16,
-      videoId: "",
-      duration: "--:--:--",
-      resolution: "1280x720"
-    },
-    {
-      id: "supernatural-s02e17",
-      provider: "dailymotion",
-      title: "Heart",
-      seasonNumber: 2,
-      episodeNumber: 17,
-      videoId: "",
-      duration: "--:--:--",
-      resolution: "1280x720"
-    },
-    {
-      id: "supernatural-s02e18",
-      provider: "dailymotion",
-      title: "Hollywood Babylon",
-      seasonNumber: 2,
-      episodeNumber: 18,
-      videoId: "",
-      duration: "--:--:--",
-      resolution: "1280x720"
-    },
-    {
-      id: "supernatural-s02e19",
-      provider: "dailymotion",
-      title: "Folsom Prison Blues",
-      seasonNumber: 2,
-      episodeNumber: 19,
-      videoId: "",
-      duration: "--:--:--",
-      resolution: "1280x720"
-    },
-    {
-      id: "supernatural-s02e20",
-      provider: "dailymotion",
-      title: "What Is and What Should Never Be",
-      seasonNumber: 2,
-      episodeNumber: 20,
-      videoId: "",
-      duration: "--:--:--",
-      resolution: "1280x720"
-    },
-    {
-      id: "supernatural-s02e21",
-      provider: "dailymotion",
-      title: "All Hell Breaks Loose: Part 1",
-      seasonNumber: 2,
-      episodeNumber: 21,
-      videoId: "",
-      duration: "--:--:--",
-      resolution: "1280x720"
-    },
-    {
-      id: "supernatural-s02e22",
-      provider: "dailymotion",
-      title: "All Hell Breaks Loose: Part 2",
-      seasonNumber: 2,
-      episodeNumber: 22,
-      videoId: "",
-      duration: "--:--:--",
-      resolution: "1280x720"
+      sources: {
+        EN: {
+          language: "EN",
+          sourceName: "Google Drive",
+          sourceUrl:
+            "",
+          embedUrl:
+            ""
+        }
+      }
     }
-  ];
+  ]
 
   const SUPERNATURAL_SEASONS = [
     {
       number: 1,
-      episodeNumbers: SUPERNATURAL_EN_EPISODES.map((episode) => episode.episodeNumber),
+      episodeNumbers: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22],
       sourceUrl: "",
-      posterUrl: "https://m.media-amazon.com/images/I/91J4-cAmM4L._AC_UF1000,1000_QL80_.jpg",
-      episodeSources: buildProviderEpisodeSources("EN", SUPERNATURAL_EN_EPISODES),
+      posterUrl:
+        "https://m.media-amazon.com/images/I/91J4-cAmM4L._AC_UF1000,1000_QL80_.jpg",
+      episodeSources: {
+        1: SUPERNATURAL_EPISODES[0],
+        2: SUPERNATURAL_EPISODES[1],
+        3: SUPERNATURAL_EPISODES[2],
+        4: SUPERNATURAL_EPISODES[3],
+        5: SUPERNATURAL_EPISODES[4],
+        6: SUPERNATURAL_EPISODES[5],
+        7: SUPERNATURAL_EPISODES[6],
+        8: SUPERNATURAL_EPISODES[7],
+        9: SUPERNATURAL_EPISODES[8],
+        10: SUPERNATURAL_EPISODES[9],
+        11: SUPERNATURAL_EPISODES[10],
+        12: SUPERNATURAL_EPISODES[11],
+        13: SUPERNATURAL_EPISODES[12],
+        14: SUPERNATURAL_EPISODES[13],
+        15: SUPERNATURAL_EPISODES[14],
+        16: SUPERNATURAL_EPISODES[15],
+        17: SUPERNATURAL_EPISODES[16],
+        18: SUPERNATURAL_EPISODES[17],
+        19: SUPERNATURAL_EPISODES[18],
+        20: SUPERNATURAL_EPISODES[19],
+        21: SUPERNATURAL_EPISODES[20],
+        22: SUPERNATURAL_EPISODES[21]
+      },
       languages: ["EN"],
       description:
         "Sam et Dean Winchester parcourent les États-Unis pour traquer les forces du Mal responsables de la mort de leur mère, vingt ans plus tôt."
     },
     {
       number: 2,
-      episodeNumbers: SUPERNATURAL_S02_EPISODES.map(e => e.episodeNumber),
-      episodeSources: buildProviderEpisodeSources("EN", SUPERNATURAL_S02_EPISODES),
-      posterUrl: "https://m.media-amazon.com/images/I/91ZAdK0wsiL._AC_UF1000,1000_QL80_.jpg",
-      languages: ["EN"]
+      episodeNumbers: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22],
+      sourceUrl: "",
+      posterUrl:
+        "https://m.media-amazon.com/images/I/91ZAdK0wsiL._AC_UF1000,1000_QL80_.jpg",
+      episodeSources: {
+        1: SUPERNATURAL_EPISODES[22],
+        2: SUPERNATURAL_EPISODES[23],
+        3: SUPERNATURAL_EPISODES[24],
+        4: SUPERNATURAL_EPISODES[25],
+        5: SUPERNATURAL_EPISODES[26],
+        6: SUPERNATURAL_EPISODES[27],
+        7: SUPERNATURAL_EPISODES[28],
+        8: SUPERNATURAL_EPISODES[29],
+        9: SUPERNATURAL_EPISODES[30],
+        10: SUPERNATURAL_EPISODES[31],
+        11: SUPERNATURAL_EPISODES[32],
+        12: SUPERNATURAL_EPISODES[33],
+        13: SUPERNATURAL_EPISODES[34],
+        14: SUPERNATURAL_EPISODES[35],
+        15: SUPERNATURAL_EPISODES[36],
+        16: SUPERNATURAL_EPISODES[37],
+        17: SUPERNATURAL_EPISODES[38],
+        18: SUPERNATURAL_EPISODES[39],
+        19: SUPERNATURAL_EPISODES[40],
+        20: SUPERNATURAL_EPISODES[41],
+        21: SUPERNATURAL_EPISODES[42],
+        22: SUPERNATURAL_EPISODES[43]
+      },
+      languages: ["EN"],
+      description:
+        "Sam et Dean Winchester parcourent les États-Unis pour traquer les forces du Mal responsables de la mort de leur mère, vingt ans plus tôt."
     }
   ];
 
@@ -1267,6 +1371,40 @@
 
   const catalogue = [
     {
+      provider: "externalPage",
+      id: "nobody-2021",
+      title: "Nobody",
+      category: "Film",
+      duration: "01:32:00",
+      resolution: "HD",
+      language: "FR",
+      date: "2021",
+      sourceName: "French Stream Premium",
+      sourceUrl: "https://fs27.lol/15107747-nobody.html",
+      access: "premium",
+      posterUrl: "https://image.tmdb.org/t/p/w400/oBgWY00bEFeZ9N25wWVyuQddbAo.jpg",
+      accentColor: "#c66b35",
+      description: "Après un cambriolage, un père de famille discret révèle un passé violent pour protéger ses proches.",
+      tags: ["Action", "Thriller"],
+      sources: {
+        FR: [
+          {
+            sourceId: "premium",
+            sourceName: "French Stream Premium",
+            access: "premium",
+            sourceUrl: "https://fs27.lol/15107747-nobody.html"
+          },
+          {
+            sourceId: "vidzy",
+            sourceName: "Vidzy",
+            access: "public",
+            sourceUrl: "https://vidzy.lol/embed-nesqwbdro8kt.html",
+            embedUrl: "https://vidzy.lol/embed-nesqwbdro8kt.html"
+          }
+        ]
+      }
+    },
+    {
       provider: "uqload",
       id: "project-hail-mary",
       title: "Project Hail Mary",
@@ -1352,7 +1490,7 @@
       provider: "youtube",
       id: "postal-2007",
       title: "Postal",
-      videoId: "dBFLgBlm5_E",
+      videoId: "JDt4t1HuMM4",
       category: "Film",
       duration: "01:57:26",
       resolution: "1920x1080",
@@ -1544,12 +1682,12 @@
       tags: ["Animation", "Science-fiction", "Com\u00e9die"],
       languages: ["FR"],
       seasons: RICK_AND_MORTY_SEASONS
-    }),
+    }), //suck my dick
     buildSeries({
       id: "supernatural",
       title: "Supernatural",
       date: "2005",
-      sourceName: "Dailymotion",
+      sourceName: "Google Drive",
       allowExternalSource: false,
       posterUrl: "https://image.tmdb.org/t/p/w400/rffL4ayOB0NaY3jcD1L2VsVoh0n.jpg",
       accentColor: "#2f5d8a",
@@ -1883,6 +2021,100 @@
       description:
         "Les étoiles ne sont plus. Les planètes ont disparu. Seuls quelques individus subsistent, à bord de stations spatiales ou de vaisseaux errants. Ils ont survécu pour assister à la fin et lui donner un nom : Le Rapt silencieux. Après des années de déclin et d'infrastructures en perdition, l'Iron Consolidation fait une découverte sur une lune désolée, AT-5. Un océan de sang. L'Iron Consolidation lance immédiatement une expédition, avec l'espoir d'y trouver des ressources cruciales.",
       tags: ["Horreur", "Science-Fiction", "Psychologique"]
+    },
+    {
+      provider: "embed",
+      id: "electroma-2006",
+      title: "Electroma",
+      category: "Film",
+      language: "Sans dialogue",
+      date: "2006",
+      sourceName: "Vaplayer",
+      sourceUrl: "https://vaplayer.ru/embed/movie/13529",
+      embedUrl: "https://vaplayer.ru/embed/movie/13529",
+      posterUrl: "https://image.tmdb.org/t/p/w500/m60OOcOVzniybIuVxzsMORMZNME.jpg",
+      accentColor: "#c79f64",
+      description:
+        "Two robots set out on a transformative journey to attain humanity. Driven by their desire for personal evolution, they navigate a surreal landscape filled with challenges and revelations. As they seek to shed their mechanical identities, the duo encounters a world that tests their aspirations and beliefs. Through a series of visually striking, abstract experiences, they confront the essence of existence and what it truly means to be human. Ultimately, their quest reflects a poignant exploration of identity, longing, and the complexities of life beyond mere circuitry.",
+      tags: ["Science-Fiction", "Drame"]
+    },
+    {
+      provider: "embed",
+      id: "seul-au-monde-2000",
+      title: "Seul au monde",
+      category: "Film",
+      duration: "2h24",
+      language: "FR",
+      languages: ["FR"],
+      date: "2000",
+      sourceName: "Vidzy",
+      sourceUrl: "https://fs3.lol/2839-seul-au-monde-film-streaming-complet-vf.html",
+      embedUrl: "https://vidzy.org/embed-dvsmd74eu8hu.html?autoplay=1",
+      posterUrl: "https://image.tmdb.org/t/p/w500/7lLJgKnAicAcR5UEuo8xhSMj18w.jpg",
+      accentColor: "#5e87a1",
+      description:
+        "Chuck Noland, cadre absorbé par son travail, se retrouve seul sur une île déserte après un accident d'avion.",
+      tags: ["Aventure", "Drame"],
+      sources: {
+        FR: {
+          language: "FR",
+          sourceName: "Vidzy",
+          sourceUrl: "https://fs3.lol/2839-seul-au-monde-film-streaming-complet-vf.html",
+          embedUrl: "https://vidzy.org/embed-dvsmd74eu8hu.html?autoplay=1"
+        }
+      }
+    },
+    {
+      provider: "embed",
+      id: "hyper-tension-2006",
+      title: "Hyper tension",
+      category: "Film",
+      duration: "1h28",
+      language: "FR",
+      languages: ["FR"],
+      date: "2006",
+      sourceName: "Vidzy",
+      sourceUrl: "https://fs3.lol/209-hyper-tension-film-streaming-complet-vf.html",
+      embedUrl: "https://vidzy.org/embed-pxasigrx2wn1.html?autoplay=1",
+      posterUrl: "https://image.tmdb.org/t/p/w500/lN395W1NPfiChHmMIUCa4oFBWGi.jpg",
+      accentColor: "#cf4c2f",
+      description:
+        "Chev Chelios, tueur à gages, se réveille empoisonné et doit maintenir son adrénaline à un niveau extrême pour survivre.",
+      tags: ["Action", "Thriller", "Crime"],
+      sources: {
+        FR: {
+          language: "FR",
+          sourceName: "Vidzy",
+          sourceUrl: "https://fs3.lol/209-hyper-tension-film-streaming-complet-vf.html",
+          embedUrl: "https://vidzy.org/embed-pxasigrx2wn1.html?autoplay=1"
+        }
+      }
+    },
+    {
+      provider: "embed",
+      id: "hyper-tension-2-2009",
+      title: "Hyper tension 2",
+      category: "Film",
+      duration: "1h35",
+      language: "FR",
+      languages: ["FR"],
+      date: "2009",
+      sourceName: "Vidzy",
+      sourceUrl: "https://fs3.lol/292-hyper-tension-2-film-streaming-complet-vf.html",
+      embedUrl: "https://vidzy.org/embed-wmh9m055beqs.html?autoplay=1",
+      posterUrl: "https://image.tmdb.org/t/p/w500/wWrf8WuysQydx6RlPmdY1ZFezFS.jpg",
+      accentColor: "#b62325",
+      description:
+        "Chev Chelios affronte un parrain de la mafia chinoise qui lui a dérobé son cœur et l'a remplacé par une prothèse qu'il doit stimuler avec des décharges électriques.",
+      tags: ["Action", "Thriller", "Crime"],
+      sources: {
+        FR: {
+          language: "FR",
+          sourceName: "Vidzy",
+          sourceUrl: "https://fs3.lol/292-hyper-tension-2-film-streaming-complet-vf.html",
+          embedUrl: "https://vidzy.org/embed-wmh9m055beqs.html?autoplay=1"
+        }
+      }
     }
   ];
 

@@ -169,6 +169,59 @@
     return [];
   }
 
+  // Un lien blob appartient au navigateur qui l'a créé, pas au catalogue.
+  function getSafeSourceUrl(value) {
+    try {
+      const url = new URL(String(value || "").trim());
+      return ["https:", "http:"].includes(url.protocol) && !url.username && !url.password
+        ? url.href
+        : "";
+    } catch (_error) {
+      return "";
+    }
+  }
+
+  function getSourceOptions(item, language) {
+    const sources = item?.sources;
+    let entries;
+
+    if (Array.isArray(sources)) {
+      entries = sources;
+    } else if (sources && typeof sources === "object") {
+      entries = Object.entries(sources).flatMap(([key, value]) =>
+        (Array.isArray(value) ? value : [value])
+          .filter(Boolean)
+          .map((entry) => ({ ...entry, language: entry.language || key }))
+      );
+    } else {
+      return item ? [{ ...item, sourceId: "default" }] : [];
+    }
+
+    return entries.filter(Boolean)
+      .filter((entry) => !language || normalizeKey(entry.language) === normalizeKey(language))
+      .map((entry, index) => ({ ...entry, sourceId: entry.sourceId || `source-${index + 1}` }));
+  }
+
+  function getPlaybackSource(item, language, sourceId = "") {
+    const options = getSourceOptions(item, language);
+    const selected = options.find((entry) => entry.sourceId === sourceId) || options[0] || {};
+
+    return {
+      ...item,
+      ...selected,
+      id: item?.id,
+      language: selected.language || language || item?.language,
+      sourceName: selected.sourceName || item?.sourceName,
+      // Ne pas hériter du lecteur d'une autre langue ou d'une source publique.
+      embedUrl: getSafeSourceUrl(selected.embedUrl),
+      videoUrl: getSafeSourceUrl(selected.videoUrl),
+      sourceUrl: getSafeSourceUrl(selected.sourceUrl || selected.embedUrl || selected.videoUrl),
+      access: selected.access || item?.access || "public",
+      loginUrl: getSafeSourceUrl(selected.loginUrl || item?.loginUrl),
+      sourceId: selected.sourceId || ""
+    };
+  }
+
   function getVideoLanguages(video) {
     const values = [
       ...(video.languages || []),
@@ -202,7 +255,7 @@
   function hasUsableMediaValue(value) {
     const text = String(value || "").trim();
 
-    return Boolean(text) && !/(?:[?&]video=|\/video\/|\/embed-|\/d\/|watch\?v=)$/.test(text);
+    return Boolean(getSafeSourceUrl(text)) && !/(?:[?&]video=|\/video\/|\/embed-|\/d\/|watch\?v=)$/.test(text);
   }
 
   function hasEmptySourceField(item) {
@@ -224,6 +277,10 @@
   function hasPlayableSource(item) {
     if (!item) {
       return false;
+    }
+
+    if (Array.isArray(item)) {
+      return item.some(hasPlayableSource);
     }
 
     if (item.type === "series") {
@@ -256,6 +313,10 @@
       return true;
     }
 
+    if (Array.isArray(item)) {
+      return !item.some((entry) => !hasMissingPlayableSource(entry));
+    }
+
     if (item.type === "series") {
       return false;
     }
@@ -265,7 +326,10 @@
     }
 
     if (Array.isArray(item.sources) && item.sources.length) {
-      return item.sources.some((source) => hasEmptySourceField(source) || !hasPlayableSource(source));
+      const languages = [...new Set(getSourceLanguages(item.sources).map(normalizeKey))];
+      return languages.length
+        ? languages.some((language) => hasMissingPlayableSource(getSourceOptions(item, language)))
+        : hasMissingPlayableSource(item.sources);
     }
 
     if (item.sources && typeof item.sources === "object") {
@@ -312,6 +376,7 @@
           <h3>${escapeHtml(video.title)}</h3>
           <div class="card-meta">
             <span class="type-pill">${escapeHtml(cardType)}</span>
+            ${["account", "premium"].includes(video.access) ? `<span class="type-pill">${video.access === "premium" ? "Premium" : "Compte requis"}</span>` : ""}
           </div>
           ${tagLimit > 0 ? renderCardTags(video, tagLimit) : ""}
         </div>
@@ -545,300 +610,34 @@
     });
   }
 
-  function bindCardHoverEffects(root) {
-    if (!root || root.dataset.hoverEffectsBound === "true") {
-      return;
-    }
+  function cleanLegacyPageFeatures() {
+    document.querySelectorAll("#account-controls, #community-section").forEach((element) => element.remove());
+  }
 
-    root.dataset.hoverEffectsBound = "true";
-    root.classList.add("is-grid-glowing");
-
-    const reducedMotionQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
-    let activeCard = null;
-    let pendingPointer = null;
-    let hoverFrame = 0;
-
-    const containsNode = (target) => target instanceof Node && root.contains(target);
-    const getCardFromTarget = (target) =>
-      target instanceof Element ? target.closest(".video-card") : null;
-    const resetCard = (card) => {
-      card?.classList.remove("is-hovered");
-      card?.style.removeProperty("--hover-x");
-      card?.style.removeProperty("--hover-y");
-      card?.style.removeProperty("--tilt-x");
-      card?.style.removeProperty("--tilt-y");
-    };
-    const resetCursorGlow = () => {
-      root.classList.remove("is-cursor-glowing");
-      root.style.removeProperty("--poster-cursor-glow-x");
-      root.style.removeProperty("--poster-cursor-glow-y");
-    };
-    const resetActiveCard = () => {
-      resetCard(activeCard);
-      activeCard = null;
-    };
-    const resetHoverState = () => {
-      if (hoverFrame) {
-        window.cancelAnimationFrame(hoverFrame);
-        hoverFrame = 0;
-      }
-      pendingPointer = null;
-      resetActiveCard();
-      resetCursorGlow();
-    };
-    const setCursorGlow = (clientX, clientY) => {
-      const gridRect = root.getBoundingClientRect();
-      const gridStyles = window.getComputedStyle(root);
-      const effectWidth = Math.max(gridRect.width, window.innerWidth);
-      const effectLeft = gridRect.left + (gridRect.width - effectWidth) / 2;
-      const effectTop = Number.parseFloat(gridStyles.getPropertyValue("--poster-grid-effect-top")) || 0;
-
-      root.classList.add("is-cursor-glowing");
-      root.style.setProperty("--poster-cursor-glow-x", `${Math.round(clientX - effectLeft)}px`);
-      root.style.setProperty("--poster-cursor-glow-y", `${Math.round(clientY - gridRect.top - effectTop)}px`);
-    };
-    const activateCard = (card, clientX, clientY, useTilt = true) => {
-      if (!card || !root.contains(card)) {
-        resetActiveCard();
+  function addLegacySourceDirectory() {
+    document.querySelectorAll(".site-footer#sources").forEach((footer) => {
+      if (footer.querySelector(".source-directory")) {
         return;
       }
 
-      if (activeCard && activeCard !== card) {
-        resetCard(activeCard);
-      }
-      activeCard = card;
-
-      const rect = card.getBoundingClientRect();
-      const x = Math.min(1, Math.max(0, (clientX - rect.left) / rect.width));
-      const y = Math.min(1, Math.max(0, (clientY - rect.top) / rect.height));
-      const tiltY = useTilt ? (x - 0.5) * 2.2 : 0;
-      const tiltX = useTilt ? (0.5 - y) * 1.65 : 0;
-
-      card.classList.add("is-hovered");
-      card.style.setProperty("--hover-x", `${Math.round(x * 100)}%`);
-      card.style.setProperty("--hover-y", `${Math.round(y * 100)}%`);
-      card.style.setProperty("--tilt-x", `${tiltX.toFixed(2)}deg`);
-      card.style.setProperty("--tilt-y", `${tiltY.toFixed(2)}deg`);
-    };
-    const applyHoverFrame = () => {
-      hoverFrame = 0;
-      const pointer = pendingPointer;
-      pendingPointer = null;
-
-      if (!pointer) {
-        return;
-      }
-
-      setCursorGlow(pointer.clientX, pointer.clientY);
-      activateCard(getCardFromTarget(pointer.target), pointer.clientX, pointer.clientY);
-    };
-
-    root.addEventListener("pointermove", (event) => {
-      if (reducedMotionQuery.matches || !root.contains(event.target)) {
-        return;
-      }
-
-      pendingPointer = {
-        clientX: event.clientX,
-        clientY: event.clientY,
-        target: event.target
-      };
-      if (!hoverFrame) {
-        hoverFrame = window.requestAnimationFrame(applyHoverFrame);
-      }
-    });
-
-    root.addEventListener("pointerout", (event) => {
-      const card = getCardFromTarget(event.target);
-      const nextTargetIsInside = containsNode(event.relatedTarget);
-
-      if (!card) {
-        if (!nextTargetIsInside) {
-          resetHoverState();
-        }
-        return;
-      }
-      if (containsNode(event.relatedTarget) && card.contains(event.relatedTarget)) {
-        return;
-      }
-
-      resetCard(card);
-      if (activeCard === card) {
-        activeCard = null;
-      }
-      if (!nextTargetIsInside) {
-        resetHoverState();
-      }
-    });
-
-    root.addEventListener("pointerleave", resetHoverState);
-
-    root.addEventListener("focusin", (event) => {
-      const card = getCardFromTarget(event.target);
-      if (!card) {
-        return;
-      }
-
-      const rect = card.getBoundingClientRect();
-      const centerX = rect.left + rect.width / 2;
-      const centerY = rect.top + rect.height * 0.38;
-
-      setCursorGlow(centerX, centerY);
-      activateCard(card, centerX, centerY, false);
-    });
-
-    root.addEventListener("focusout", (event) => {
-      const card = getCardFromTarget(event.target);
-      resetCard(card);
-      if (activeCard === card) {
-        activeCard = null;
-      }
-      if (!containsNode(event.relatedTarget)) {
-        resetHoverState();
-      }
+      footer.insertAdjacentHTML("beforeend", `<section class="source-directory" aria-labelledby="source-directory-title">
+  <p class="source-title" id="source-directory-title">Sources de redirection</p>
+  <p class="source-warning" role="note">
+    <span aria-hidden="true">⚠️</span>
+    <span><strong>Attention :</strong> ces lecteurs externes peuvent afficher des publicités à caractère sexuel. Utilisez un bloqueur de publicités et ne communiquez aucune information personnelle.</span>
+  </p>
+  <ul class="source-list">
+    <li><a href="https://french-stream.one/" target="_blank" rel="noopener noreferrer nofollow">French-Stream</a></li>
+    <li><a href="https://fs2.lol/" target="_blank" rel="noopener noreferrer nofollow">FS2</a></li>
+    <li><a href="https://fs3.lol/" target="_blank" rel="noopener noreferrer nofollow">FS3</a></li>
+    <li><a href="https://fmoviesto.me/" target="_blank" rel="noopener noreferrer nofollow">FMoviesTo</a></li>
+  </ul>
+</section>`);
     });
   }
 
-  function initCustomCursor() {
-    if (!document.body || document.body.dataset.customCursorBound === "true") {
-      return;
-    }
-
-    const finePointerQuery = window.matchMedia("(hover: hover) and (pointer: fine)");
-    const reducedMotionQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
-    if (!finePointerQuery.matches || reducedMotionQuery.matches) {
-      return;
-    }
-
-    const cursorZoneSelector = ".video-grid";
-    if (!document.querySelector(cursorZoneSelector)) {
-      return;
-    }
-
-    const dot = document.createElement("div");
-    const ring = document.createElement("div");
-    const interactiveSelector = ".video-grid a, .video-grid button, .video-grid [role='button'], .video-grid .video-card";
-    const particles = new Set();
-    const maxParticles = 8;
-    let mouseX = window.innerWidth / 2;
-    let mouseY = window.innerHeight / 2;
-    let dotX = mouseX;
-    let dotY = mouseY;
-    let ringX = mouseX;
-    let ringY = mouseY;
-    let lastParticleTime = 0;
-
-    dot.className = "site-cursor-dot";
-    ring.className = "site-cursor-ring";
-    document.body.append(dot, ring);
-    document.body.dataset.customCursorBound = "true";
-    document.body.classList.add("has-custom-cursor");
-
-    function createParticle(x, y) {
-      if (particles.size >= maxParticles) {
-        return;
-      }
-
-      const particle = document.createElement("span");
-      const angle = Math.random() * Math.PI * 2;
-      const drift = 5 + Math.random() * 8;
-      const size = 1.4 + Math.random() * 1.5;
-
-      particle.className = "site-cursor-particle";
-      particle.style.left = `${x}px`;
-      particle.style.top = `${y}px`;
-      particle.style.setProperty("--cursor-particle-size", `${size.toFixed(1)}px`);
-      particle.style.setProperty("--cursor-particle-drift-x", `${(Math.cos(angle) * drift).toFixed(1)}px`);
-      particle.style.setProperty("--cursor-particle-drift-y", `${(Math.sin(angle) * drift).toFixed(1)}px`);
-      particles.add(particle);
-      document.body.append(particle);
-      window.setTimeout(() => {
-        particles.delete(particle);
-        particle.remove();
-      }, 540);
-    }
-
-    function setCursorVisibility(isVisible) {
-      document.body.classList.toggle("custom-cursor-ready", isVisible);
-      dot.style.opacity = isVisible ? "0.68" : "0";
-      ring.style.opacity = isVisible ? "0.72" : "0";
-    }
-
-    function setCursorActive(isActive) {
-      document.body.classList.toggle("custom-cursor-active", isActive);
-    }
-
-    function updateCursor() {
-      dotX += (mouseX - dotX) * 0.32;
-      dotY += (mouseY - dotY) * 0.32;
-      ringX += (mouseX - ringX) * 0.16;
-      ringY += (mouseY - ringY) * 0.16;
-
-      dot.style.transform = `translate3d(${dotX}px, ${dotY}px, 0) translate(-50%, -50%)`;
-      ring.style.transform = `translate3d(${ringX}px, ${ringY}px, 0) translate(-50%, -50%)`;
-      window.requestAnimationFrame(updateCursor);
-    }
-
-    document.addEventListener("pointermove", (event) => {
-      if (event.pointerType && event.pointerType !== "mouse") {
-        return;
-      }
-
-      mouseX = event.clientX;
-      mouseY = event.clientY;
-      const cursorZone =
-        event.target instanceof Element ? event.target.closest(cursorZoneSelector) : null;
-      const isInCursorZone = Boolean(cursorZone);
-
-      setCursorVisibility(isInCursorZone);
-      setCursorActive(
-        isInCursorZone &&
-          event.target instanceof Element &&
-          Boolean(event.target.closest(interactiveSelector)),
-      );
-
-      if (!cursorZone) {
-        return;
-      }
-
-      const now = Date.now();
-      if (now - lastParticleTime > 92 && Math.random() > 0.56) {
-        createParticle(mouseX, mouseY);
-        lastParticleTime = now;
-      }
-    });
-
-    document.addEventListener("pointerover", (event) => {
-      if (
-        event.target instanceof Element &&
-        event.target.closest(cursorZoneSelector) &&
-        event.target.closest(interactiveSelector)
-      ) {
-        setCursorVisibility(true);
-        setCursorActive(true);
-      }
-    });
-
-    document.addEventListener("pointerout", (event) => {
-      const nextTarget = event.relatedTarget;
-      if (nextTarget instanceof Element && nextTarget.closest(cursorZoneSelector)) {
-        setCursorVisibility(true);
-        setCursorActive(Boolean(nextTarget.closest(interactiveSelector)));
-        return;
-      }
-      setCursorVisibility(false);
-      setCursorActive(false);
-    });
-
-    document.addEventListener("pointerleave", () => {
-      setCursorVisibility(false);
-      setCursorActive(false);
-    });
-
-    updateCursor();
-  }
-
-  initCustomCursor();
+  cleanLegacyPageFeatures();
+  addLegacySourceDirectory();
 
   window.BOILED_UTILS = Object.freeze({
     buildPlayerUrl,
@@ -853,6 +652,9 @@
     getSeasonLabel,
     getDisplayTags,
     getVideoLanguages,
+    getSafeSourceUrl,
+    getSourceOptions,
+    getPlaybackSource,
     hasPlayableSource,
     hasMissingPlayableSource,
     isCamrip,
@@ -860,7 +662,6 @@
     normalizeKey,
     renderPosterImage,
     renderVideoCard,
-    bindImageFallbacks,
-    bindCardHoverEffects
+    bindImageFallbacks
   });
 })();

@@ -24,6 +24,15 @@
   const relatedTitle = document.querySelector("#related-title");
   const playerHelp = document.querySelector("#player-help");
   const seriesPanel = document.querySelector("#series-panel");
+  // Compatible aussi avec les anciennes pages watch déjà publiées.
+  const sourceOptions = document.querySelector("#source-options") || document.createElement("div");
+  sourceOptions.id = "source-options";
+  sourceOptions.className = "source-options";
+  sourceOptions.setAttribute("aria-label", "Sources disponibles");
+  sourceOptions.hidden = true;
+  if (!sourceOptions.parentNode && playerMount) {
+    playerMount.before(sourceOptions);
+  }
 
   if (!utils || !playerMount || !allVideos.length) {
     if (playerMount) {
@@ -45,13 +54,15 @@
     getEpisodeCount,
     getDisplayTags,
     getVideoLanguages,
+    getSafeSourceUrl,
+    getSourceOptions,
+    getPlaybackSource,
     hasPlayableSource,
     hasMissingPlayableSource,
     normalizeKey,
     renderPosterImage,
     renderVideoCard,
-    bindImageFallbacks,
-    bindCardHoverEffects
+    bindImageFallbacks
   } = utils;
   const RELATED_LIMIT = 3;
   const video = allVideos.find((item) => item.id === requestedId) || videos[0] || episodes[0];
@@ -320,7 +331,7 @@
   }
 
   function hasSelectableSources(item) {
-    return getSourceLanguages(item?.sources).length > 1;
+    return uniqueNormalizedValues(getSourceLanguages(item?.sources)).length > 1;
   }
 
   function hasAnySource(item) {
@@ -396,6 +407,13 @@
 
   function updateSeriesAddress(item, season, episode, language) {
     const nextParams = new URLSearchParams(window.location.search);
+    if (
+      (nextParams.has("lang") && normalizeKey(nextParams.get("lang")) !== normalizeKey(language)) ||
+      (nextParams.has("season") && Number(nextParams.get("season")) !== season.number) ||
+      (nextParams.has("episode") && Number(nextParams.get("episode")) !== episode?.number)
+    ) {
+      nextParams.delete("source");
+    }
     nextParams.set("video", item.id);
     nextParams.set("season", String(season.number));
     if (episode) {
@@ -415,6 +433,10 @@
 
   function updateMovieAddress(item, language) {
     const nextParams = new URLSearchParams(window.location.search);
+
+    if (nextParams.has("lang") && normalizeKey(nextParams.get("lang")) !== normalizeKey(language)) {
+      nextParams.delete("source");
+    }
 
     if (!watchMatch || nextParams.has("video")) {
       nextParams.set("video", item.id);
@@ -463,14 +485,18 @@
   function renderExternalGate(item, options = {}) {
     showPlayerMount();
 
-    const sourceUrl = options.sourceUrl || item.sourceUrl || "";
+    const sourceUrl = getSafeSourceUrl(options.sourceUrl || item.sourceUrl);
     const sourceName = options.sourceName || item.sourceName || "Source externe";
     const gateTitle = options.title || item.title;
     const gateContext = options.context || "Source externe";
     const sourceAction = sourceUrl
-      ? `<a class="button primary" href="${escapeHtml(sourceUrl)}" target="_blank" rel="noreferrer">Ouvrir la source</a>`
+      ? `<a class="button primary" href="${escapeHtml(sourceUrl)}" target="_blank" rel="noopener noreferrer">${escapeHtml(options.actionLabel || "Ouvrir la source")}</a>`
       : "";
-    const gateMeta = [sourceName, options.language || item.language, options.quality || item.resolution]
+    const loginUrl = getSafeSourceUrl(item.loginUrl);
+    const loginAction = loginUrl && loginUrl !== sourceUrl
+      ? `<a class="button secondary" href="${escapeHtml(loginUrl)}" target="_blank" rel="noopener noreferrer">Se connecter chez l’hébergeur</a>`
+      : "";
+    const gateMeta = [sourceName, options.accessLabel, options.language || item.language, options.quality || item.resolution]
       .filter(Boolean)
       .map((value) => `<span>${escapeHtml(formatLanguage(value))}</span>`)
       .join("");
@@ -483,15 +509,63 @@
           </div>
           <h2>${escapeHtml(gateTitle)}</h2>
           <p>${escapeHtml(gateContext)}</p>
-          ${sourceAction}
+          <div class="external-source-actions">${sourceAction}${loginAction}</div>
         </div>
       </div>
     `;
 
     if (playerHelp) {
       playerHelp.innerHTML =
-        "<p><strong>Source externe.</strong> BoiledStream affiche la fiche et les sélections disponibles.</p>";
+        options.help || "<p><strong>Source externe.</strong> BoiledStream affiche la fiche et les sélections disponibles.</p>";
     }
+  }
+
+  function requiresSourceAccount(item) {
+    return ["account", "premium"].includes(item?.access);
+  }
+
+  function renderAccountSource(item, options = {}) {
+    renderExternalGate(item, {
+      ...options,
+      accessLabel: item.access === "premium" ? "Premium · compte requis" : "Compte requis",
+      context: item.access === "premium"
+        ? "Connecte-toi chez l’hébergeur avec un compte disposant de l’accès premium pour regarder cette vidéo."
+        : "Ouvre la fiche et connecte-toi chez l’hébergeur pour accéder aux lecteurs réservés aux membres.",
+      actionLabel: "Ouvrir la source avec mon compte",
+      help: "<p>Chaque spectateur utilise son propre compte chez l’hébergeur. BoiledStream ne demande aucun identifiant.</p>"
+    });
+  }
+
+  function renderSourceOptions(item, language, onSelect) {
+    const choices = getSourceOptions(item, language);
+    sourceOptions.hidden = choices.length < 2 && !choices.some(requiresSourceAccount);
+    sourceOptions.innerHTML = "";
+    if (sourceOptions.hidden) {
+      return;
+    }
+
+    const selected = getPlaybackSource(item, language, new URLSearchParams(window.location.search).get("source"));
+    sourceOptions.innerHTML = `
+      <p class="section-kicker">Choisir une source</p>
+      <div class="source-choice-list">
+        ${choices.map((choice) => `
+          <button class="source-choice" type="button" data-source-id="${escapeHtml(choice.sourceId)}" aria-pressed="${choice.sourceId === selected.sourceId}">
+            <span>${escapeHtml(choice.sourceName || "Lecteur externe")}</span>
+            <small>${choice.access === "premium" ? "Premium · compte requis" : choice.access === "account" ? "Compte requis" : "Lecteur externe"}</small>
+          </button>
+        `).join("")}
+      </div>
+    `;
+    sourceOptions.querySelectorAll("[data-source-id]").forEach((button) => {
+      button.addEventListener("click", () => {
+        const nextUrl = new URL(window.location.href);
+        nextUrl.searchParams.set("source", button.dataset.sourceId);
+        window.history.replaceState(null, "", nextUrl);
+        onSelect();
+        Array.from(sourceOptions.querySelectorAll("[data-source-id]"))
+          .find((entry) => entry.dataset.sourceId === button.dataset.sourceId)?.focus();
+      });
+    });
   }
 
   function formatLaunchLanguage(value) {
@@ -579,11 +653,11 @@
     const playback = hasEpisodeSelection ? getEpisodePlaybackSource(episode, language) : {};
     const selectedPosterUrl = season.posterUrl || item.posterUrl;
     const hasSelectedPlayer = hasEpisodeSelection && Boolean(playback.embedUrl || playback.videoUrl);
-    const selectedSourceUrl = hasEpisodeSelection
+    const selectedSourceUrl = getSafeSourceUrl(hasEpisodeSelection
       ? hasSelectedPlayer
         ? ""
         : playback.sourceUrl || episode.sourceUrl || season.sourceUrl || item.sourceUrl || ""
-      : "";
+      : "");
     const selectedSourceName = hasEpisodeSelection
       ? playback.sourceName || episode.sourceName || item.sourceName || "Player"
       : item.sourceName || "Player";
@@ -819,97 +893,16 @@
   }
 
   function getDeclaredSourceForLanguage(sources, language) {
-    if (Array.isArray(sources)) {
-      return sources.find((entry) => normalizeKey(entry.language) === normalizeKey(language)) || null;
-    }
-
-    if (sources && typeof sources === "object") {
-      const selectedKey = Object.keys(sources).find(
-        (key) => normalizeKey(key) === normalizeKey(language)
-      );
-
-      return selectedKey ? sources[selectedKey] || null : null;
-    }
-
-    return null;
+    const options = getSourceOptions({ sources }, language);
+    return options.length ? options : null;
   }
 
   function getEpisodePlaybackSource(episode, language) {
-    const sources = episode?.sources;
-
-    if (Array.isArray(sources) && sources.length) {
-      const selected = sources.find((entry) => normalizeKey(entry.language) === normalizeKey(language));
-
-      if (!selected) {
-        return episode || {};
-      }
-
-      return {
-        ...episode,
-        ...selected,
-        sourceName: selected.sourceName || episode.sourceName,
-        sourceUrl: selected.sourceUrl || episode.sourceUrl
-      };
-    }
-
-    if (sources && typeof sources === "object") {
-      const selectedKey = Object.keys(sources).find(
-        (key) => normalizeKey(key) === normalizeKey(language)
-      );
-      if (!selectedKey) {
-        return episode || {};
-      }
-      const selected = sources[selectedKey] || {};
-
-      return {
-        ...episode,
-        ...selected,
-        language: selected.language || selectedKey,
-        sourceName: selected.sourceName || episode.sourceName,
-        sourceUrl: selected.sourceUrl || episode.sourceUrl
-      };
-    }
-
-    return episode || {};
+    return getPlaybackSource(episode, language, new URLSearchParams(window.location.search).get("source"));
   }
 
   function getMoviePlaybackSource(item, language) {
-    const sources = item?.sources;
-
-    if (Array.isArray(sources) && sources.length) {
-      const selected = sources.find((entry) => normalizeKey(entry.language) === normalizeKey(language));
-
-      if (!selected) {
-        return item || {};
-      }
-
-      return {
-        ...item,
-        ...selected,
-        sourceName: selected.sourceName || item.sourceName,
-        sourceUrl: selected.sourceUrl || item.sourceUrl
-      };
-    }
-
-    if (sources && typeof sources === "object") {
-      const selectedKey = Object.keys(sources).find(
-        (key) => normalizeKey(key) === normalizeKey(language)
-      );
-      if (!selectedKey) {
-        return item || {};
-      }
-      const selected = sources[selectedKey] || {};
-
-      return {
-        ...item,
-        ...selected,
-        language: selected.language || selectedKey,
-        sourceName: selected.sourceName || item.sourceName,
-        sourceUrl: selected.sourceUrl || item.sourceUrl
-      };
-    }
-
-    return item || {};
+    return getPlaybackSource(item, language, new URLSearchParams(window.location.search).get("source"));
   }
 
   function renderEpisodePlayback(item, season, episode, language) {
@@ -925,8 +918,14 @@
       resolution: playback.resolution || item.resolution,
       duration: playback.duration || item.duration,
       sourceName: playback.sourceName || item.sourceName,
-      sourceUrl: playback.sourceUrl || episode.sourceUrl || season.sourceUrl || item.sourceUrl
+      sourceUrl: playback.sourceUrl
     };
+
+    if (requiresSourceAccount(playback)) {
+      renderAccountSource(playbackItem, { title: playbackTitle, language });
+      renderSeriesPanel(item);
+      return true;
+    }
 
     if (playback.embedUrl) {
       if (isUqloadEmbed(playbackItem)) {
@@ -968,6 +967,7 @@
   }
 
   function renderSeriesExperience(item) {
+    sourceOptions.hidden = true;
     const { season, episode, language, languages, hasLanguageParam } = getSeriesState(item);
     if (!season) {
       renderExternalGate(item, {
@@ -1005,12 +1005,16 @@
     }
 
     updateSeriesAddress(item, season, episode, language);
+    renderSourceOptions(episode, language, () => {
+      renderSeriesExperience(item);
+      renderMetadata(item);
+    });
     if (renderEpisodePlayback(item, season, episode, language)) {
       return;
     }
 
     const playback = getEpisodePlaybackSource(episode, language);
-    const sourceUrl = playback.sourceUrl || episode.sourceUrl || season.sourceUrl || item.sourceUrl || "";
+    const sourceUrl = getSafeSourceUrl(playback.sourceUrl || episode.sourceUrl || season.sourceUrl || item.sourceUrl);
     if (!sourceUrl) {
       renderEmptyPlayer(item, {
         title: `${item.title} - ${season.label} - ${episode.title}`,
@@ -1125,19 +1129,20 @@
     const movieState = getMovieState(item);
     const hasMovieSources = hasAnySource(item);
     const hasMovieSourceChoices = hasSelectableSources(item);
-    const playback = hasMovieSources ? getMoviePlaybackSource(item, movieState.language) : item;
+    const playback = getMoviePlaybackSource(item, movieState.language);
     const playbackItem = {
       ...item,
       ...playback,
       title: item.title,
       posterUrl: item.posterUrl,
       sourceName: playback.sourceName || item.sourceName,
-      sourceUrl: playback.sourceUrl || item.sourceUrl,
+      sourceUrl: playback.sourceUrl,
       resolution: playback.resolution || item.resolution,
       duration: playback.duration || item.duration
     };
 
     if (hasMovieSourceChoices && !movieState.hasLanguageParam) {
+      sourceOptions.hidden = true;
       updateMovieAddress(item, "");
       renderMovieSourcePanel(item, { requireLanguageSelection: true });
       renderLanguageGate(
@@ -1169,6 +1174,16 @@
     } else if (seriesPanel) {
       seriesPanel.hidden = true;
       seriesPanel.innerHTML = "";
+    }
+
+    renderSourceOptions(item, movieState.language, () => {
+      renderPlayer(item);
+      renderMetadata(item);
+    });
+
+    if (requiresSourceAccount(playbackItem)) {
+      renderAccountSource(playbackItem);
+      return;
     }
 
     if (playbackItem.embedUrl) {
@@ -1235,7 +1250,7 @@
       seriesPlayback?.sourceUrl || seriesState?.episode?.sourceUrl || seriesState?.season?.sourceUrl || item.sourceUrl;
     const movieState = item.type === "series" ? null : getMovieState(item);
     const moviePlayback = movieState ? getMoviePlaybackSource(item, movieState.language) : null;
-    const movieSource = moviePlayback?.sourceUrl || item.sourceUrl;
+    const movieSource = moviePlayback?.sourceUrl || "";
     const episodeDuration = seriesPlayback?.duration || seriesState?.episode?.duration || "";
     const episodeResolution = seriesPlayback?.resolution || seriesState?.episode?.resolution || "";
     const episodeFormat = seriesPlayback?.format || seriesState?.episode?.format || "";
@@ -1299,10 +1314,15 @@
     }
     if (source) {
       const sourceLabel = seriesPlayback?.sourceName || moviePlayback?.sourceName || item.sourceName || "Source";
-      source.href = seriesState ? seriesSource || item.sourceUrl || "#" : movieSource || "#";
+      const sourceHref = getSafeSourceUrl(seriesState ? seriesSource : movieSource);
+      if (sourceHref) {
+        source.href = sourceHref;
+      } else {
+        source.removeAttribute("href");
+      }
       source.textContent = seriesState?.episode
         ? `${sourceLabel} - ${seriesState.season.label} épisode ${seriesState.episode.number}`
-        : sourceLabel;
+        : sourceHref ? sourceLabel : "Indisponible";
     }
 
     const visibleTags = getDisplayTags(item);
@@ -1450,7 +1470,6 @@
       .map((item) => renderVideoCard(item, { related: true, tagLimit: 2 }))
       .join("");
     bindImageFallbacks(relatedGrid);
-    bindCardHoverEffects(relatedGrid);
   }
 
   function isTypingTarget(target) {
