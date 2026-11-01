@@ -7,7 +7,7 @@ Site statique de présentation vidéo avec:
 - page player dédiée pour chaque vidéo;
 - support des players externes intégrés dans une page interne.
 
-[Ouvrir le site](https://boiledstone.github.io/BoiledStream/)
+[Ouvrir le site](https://syga777.github.io/BoiledStream/)
 
 Ouvrir `index.html` dans un navigateur pour tester le site.
 

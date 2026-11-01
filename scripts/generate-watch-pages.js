@@ -3,7 +3,7 @@ const path = require("path");
 const vm = require("vm");
 
 const ROOT = path.resolve(__dirname, "..");
-const SITE_URL = "https://boiledstone.github.io/BoiledStream";
+const SITE_URL = "https://syga777.github.io/BoiledStream";
 const WATCH_DIR = path.join(ROOT, "watch");
 const ASSET_VERSION = "20260720-red-logo";
 
